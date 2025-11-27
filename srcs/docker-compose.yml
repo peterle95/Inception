@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  nginx:
+    container_name: nginx
+    build: requirements/nginx
+    image: nginx
+    ports:
+      - "443:443"
+    networks:
+      - inception
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+    env_file: .env
+
+  mariadb:
+    container_name: mariadb
+    build: requirements/mariadb
+    image: mariadb
+    networks:
+      - inception
+    volumes:
+      - mariadb:/var/lib/mysql
+    restart: always
+    env_file: .env
+    secrets:
+      - db_root_password
+      - db_password
+
+  wordpress:
+    container_name: wordpress
+    build: requirements/wordpress
+    image: wordpress
+    networks:
+      - inception
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+    env_file: .env
+    depends_on:
+      - mariadb
+    secrets:
+      - db_password
+      - credentials
+
+networks:
+  inception:
+    driver: bridge
+
+volumes:
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/peter/data/mariadb
+
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/peter/data/wordpress
+
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  db_password:
+    file: ../secrets/db_password.txt
+  credentials:
+    file: ../secrets/credentials.txt
