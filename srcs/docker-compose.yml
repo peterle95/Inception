@@ -4,7 +4,7 @@ services:
   nginx:
     container_name: nginx
     build: requirements/nginx
-    image: nginx
+    image: nginx-inception # CHANGED: Unique name to avoid conflict with official 'nginx'
     ports:
       - "443:443"
     networks:
@@ -17,7 +17,7 @@ services:
   mariadb:
     container_name: mariadb
     build: requirements/mariadb
-    image: mariadb
+    image: mariadb-inception # CHANGED
     networks:
       - inception
     volumes:
@@ -31,7 +31,7 @@ services:
   wordpress:
     container_name: wordpress
     build: requirements/wordpress
-    image: wordpress
+    image: wordpress-inception # CHANGED
     networks:
       - inception
     volumes:
@@ -54,19 +54,19 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/peter/data/mariadb
+      device: /home/pmolzer/data/mariadb
 
   wordpress:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/peter/data/wordpress
+      device: /home/pmolzer/data/wordpress
 
 secrets:
   db_root_password:
-    file: ../secrets/db_root_password.txt
+    file: ../secrets/db_root_password.txt # Verified: ensure this path is correct relative to compose file
   db_password:
     file: ../secrets/db_password.txt
   credentials:
-    file: ../secrets/credentials.txt
+    file: ./secrets/credentials.txt

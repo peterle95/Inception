@@ -28,15 +28,15 @@ sudo nano /etc/hosts
 Add this line (keep your existing entries):
 ```
 127.0.0.1 localhost
-127.0.1.1 debian.pmolzer debian
-127.0.0.1 peter.42.fr
+127.0.1.1 inception.pmolzer inception
+127.0.0.1 pmolzer.42.fr
 ```
 
 Save and exit (Ctrl+X, Y, Enter).
 
 **Verify**: Test DNS resolution:
 ```bash
-ping peter.42.fr
+ping pmolzer.42.fr
 ```
 You should see responses from `127.0.0.1`.
 
@@ -116,13 +116,13 @@ Wait until you see "Starting PHP-FPM..." (takes ~30 seconds).
 
 Open your browser and navigate to:
 ```
-https://peter.42.fr
+https://pmolzer.42.fr
 ```
 
 **What you should see**:
 1. **Security Warning**: Your browser will warn about the self-signed certificate. This is expected.
    - Click "Advanced" → "Accept the Risk and Continue" (Firefox)
-   - Or "Advanced" → "Proceed to peter.42.fr" (Chrome)
+   - Or "Advanced" → "Proceed to pmolzer.42.fr" (Chrome)
 
 2. **WordPress Homepage**: You should see the default WordPress site with the "Inception" title.
 
@@ -130,17 +130,17 @@ https://peter.42.fr
 
 Navigate to the admin panel:
 ```
-https://peter.42.fr/wp-admin
+https://pmolzer.42.fr/wp-admin
 ```
 
 **Login credentials** (from `.env` file):
-- **Admin Username**: `peter`
+- **Admin Username**: `pmolzer`
 - **Admin Password**: `adminsecret123`
 
 **What you should see**:
 - WordPress admin dashboard
 - Two users in the system:
-  - `peter` (Administrator)
+  - `pmolzer` (Administrator)
   - `normaluser` (Author)
 
 ### Step 8: Verify Data Persistence
@@ -157,7 +157,7 @@ make up
 # Check the site - your data should still be there
 ```
 
-Visit `https://peter.42.fr` - the site should load with all previous data intact.
+Visit `https://pmolzer.42.fr` - the site should load with all previous data intact.
 
 ## Available Commands
 
@@ -248,7 +248,7 @@ make all
 ## Data Storage
 
 Persistent data is stored in:
-- `/home/peter/data/mariadb` - Database files
-- `/home/peter/data/wordpress` - WordPress files
+- `/home/pmolzer/data/mariadb` - Database files
+- `/home/pmolzer/data/wordpress` - WordPress files
 
 These directories are created automatically by the Makefile.
