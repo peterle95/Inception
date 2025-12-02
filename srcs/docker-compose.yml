@@ -69,4 +69,4 @@ secrets:
   db_password:
     file: ../secrets/db_password.txt
   credentials:
-    file: ./secrets/credentials.txt
+    file: ../secrets/credentials.txt
