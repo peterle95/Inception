@@ -4,20 +4,22 @@ services:
   nginx:
     container_name: nginx
     build: requirements/nginx
-    image: nginx-inception
+    image: nginx
+    pull_policy: never # this means that the images are not pulled from dockerhub
     ports:
       - "443:443"
     networks:
       - inception
     volumes:
       - wordpress:/var/www/html
-    restart: always
+    restart: always # this means that the container will be restarted if it crashes
     env_file: .env
 
   mariadb:
     container_name: mariadb
     build: requirements/mariadb
-    image: mariadb-inception
+    image: mariadb
+    pull_policy: never
     networks:
       - inception
     volumes:
@@ -31,7 +33,8 @@ services:
   wordpress:
     container_name: wordpress
     build: requirements/wordpress
-    image: wordpress-inception
+    image: wordpress
+    pull_policy: never
     networks:
       - inception
     volumes:
@@ -44,9 +47,10 @@ services:
       - db_password
       - credentials
 
-networks:
+networks: # the network is used to connect the containers
   inception:
-    driver: bridge
+    driver: bridge # the bridge driver is used to connect the containers, diver: bridge means that the containers will be connected to the bridge network
+    # bridge network is the default network driver for Docker
 
 volumes:
   mariadb:
