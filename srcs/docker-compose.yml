@@ -4,7 +4,7 @@ services:
   nginx:
     container_name: nginx
     build: requirements/nginx
-    image: nginx-inception # CHANGED: Unique name to avoid conflict with official 'nginx'
+    image: nginx-inception
     ports:
       - "443:443"
     networks:
@@ -17,7 +17,7 @@ services:
   mariadb:
     container_name: mariadb
     build: requirements/mariadb
-    image: mariadb-inception # CHANGED
+    image: mariadb-inception
     networks:
       - inception
     volumes:
@@ -31,7 +31,7 @@ services:
   wordpress:
     container_name: wordpress
     build: requirements/wordpress
-    image: wordpress-inception # CHANGED
+    image: wordpress-inception
     networks:
       - inception
     volumes:

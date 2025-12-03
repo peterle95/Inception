@@ -1,0 +1,630 @@
+=== ./Makefile ===
+NAME = inception
+
+all: build up
+
+build: # build containers
+	@echo "Building containers..."
+	mkdir -p /home/pmolzer/data/mariadb
+	mkdir -p /home/pmolzer/data/wordpress
+	docker compose -f srcs/docker-compose.yml build
+
+rebuild: # complete rebuild from scratch
+	@echo "Rebuilding from scratch..."
+	docker compose -f srcs/docker-compose.yml build --no-cache
+
+up: # start containers
+	@echo "Starting containers..."
+	docker compose -f srcs/docker-compose.yml up -d
+
+down: # stop containers
+	@echo "Stopping containers..."
+	docker compose -f srcs/docker-compose.yml down
+
+clean: down # clean system
+	@echo "Cleaning system..."
+	docker system prune -af
+
+fclean: clean # fully clean system
+	@echo "Fully cleaning system..."
+	docker run --rm -v /home/pmolzer/data:/data alpine rm -rf /data/mariadb /data/wordpress
+	docker volume rm srcs_mariadb srcs_wordpress || true
+
+re: fclean all # rebuild from scratch
+	@echo "Rebuilding from scratch..."
+	docker compose -f srcs/docker-compose.yml build --no-cache
+	@echo "Starting containers..."
+	docker compose -f srcs/docker-compose.yml up -d
+
+.PHONY: all build up down clean fclean re
+=== ./secrets/db_password.txt ===
+wpsecret123
+=== ./secrets/credentials.txt ===
+username=pmolzer
+password=adminsecret123
+=== ./secrets/db_root_password.txt ===
+rootsecret123
+=== ./srcs/docker-compose.yml ===
+version: '3.8'
+
+services:
+  nginx:
+    container_name: nginx
+    build: requirements/nginx
+    image: nginx-inception
+    ports:
+      - "443:443"
+    networks:
+      - inception
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+    env_file: .env
+
+  mariadb:
+    container_name: mariadb
+    build: requirements/mariadb
+    image: mariadb-inception
+    networks:
+      - inception
+    volumes:
+      - mariadb:/var/lib/mysql
+    restart: always
+    env_file: .env
+    secrets:
+      - db_root_password
+      - db_password
+
+  wordpress:
+    container_name: wordpress
+    build: requirements/wordpress
+    image: wordpress-inception
+    networks:
+      - inception
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+    env_file: .env
+    depends_on:
+      - mariadb
+    secrets:
+      - db_password
+      - credentials
+
+networks:
+  inception:
+    driver: bridge
+
+volumes:
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/pmolzer/data/mariadb
+
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/pmolzer/data/wordpress
+
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt # Verified: ensure this path is correct relative to compose file
+  db_password:
+    file: ../secrets/db_password.txt
+  credentials:
+    file: ../secrets/credentials.txt
+=== ./srcs/requirements/mariadb/conf/50-server.cnf ===
+#
+# These groups are read by MariaDB server.
+# Use it for options that only the server (but not clients) should see
+
+# this is read by the standalone daemon and embedded servers
+[server]
+
+# this is only for the mysqld standalone daemon
+[mysqld]
+
+#
+# * Basic Settings
+#
+
+user                    = mysql
+pid-file                = /run/mysqld/mysqld.pid
+basedir                 = /usr
+datadir                 = /var/lib/mysql
+
+# Broken reverse DNS slows down connections considerably and name resolve is
+# safe to skip if there are no "host by domain name" access grants
+skip-name-resolve
+
+# Allow connections from any IP address (required for Docker networking)
+bind-address            = 0.0.0.0
+port                    = 3306
+
+#
+# * Character sets
+#
+
+# MySQL/MariaDB default is Latin1, but we rather default to the full
+# utf8 4-byte character set.
+character-set-server  = utf8mb4
+collation-server      = utf8mb4_general_ci
+
+#
+# * InnoDB
+#
+
+# InnoDB is enabled by default with a 10MB datafile in /var/lib/mysql/.
+# Read the manual for more InnoDB related options. There are many!
+
+# this is only for embedded server
+[embedded]
+
+# This group is only read by MariaDB servers, not by MySQL.
+# If you use the same .cnf file for MySQL and MariaDB,
+# you can put MariaDB-only options here
+[mariadb]
+
+=== ./srcs/requirements/mariadb/Dockerfile ===
+FROM alpine:3.19
+
+RUN apk update && apk add --no-cache mariadb mariadb-client
+
+# Create the run directory for mysqld
+RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
+
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Copy custom MariaDB configuration
+COPY conf/50-server.cnf /etc/my.cnf.d/50-server.cnf
+
+# EXPOSE is the port that the container will listen on
+# it doesn't open the port, it just tells Docker that the container will listen on that port
+# and that the port should be mapped to the host
+EXPOSE 3306
+
+# ENTRYPOINT is the script that will be executed when the container starts
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# CMD is the command that will be executed when the container starts
+CMD ["mysqld", "--user=mysql"] 
+=== ./srcs/requirements/mariadb/tools/entrypoint.sh ===
+#!/bin/sh
+
+# Check if the database is already initialized
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    echo "Initializing database..."
+    mysql_install_db --user=mysql --datadir=/var/lib/mysql
+    # mariadb needs a temporary server to initialize the database
+    # the server is started with the --bootstrap option
+    # it will create the database and the user
+    # then it will stop
+
+    # mysql_install_db is a script that will create the database and the user
+
+    # Initialize the database
+    
+    echo "Starting temporary MariaDB server..."
+    /usr/bin/mysqld --user=mysql --bootstrap << EOF
+USE mysql;
+FLUSH PRIVILEGES;
+
+-- Set root password
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+
+-- Create database
+CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+
+-- Create user
+CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
+
+-- Flush privileges
+FLUSH PRIVILEGES;
+EOF
+    echo "Database initialized."
+fi
+
+echo "Starting MariaDB..."
+exec "$@"
+=== ./srcs/requirements/mariadb/TESTING.MD ===
+# Testing MariaDB
+
+## 1. Verify Database Connection (Terminal)
+
+The database should be accessible from the WordPress container, but not from the host.
+
+**Command:**
+```bash
+# Check if mariadb is running
+docker ps | grep mariadb
+
+# Try to connect from the host (Should FAIL)
+mysql -h 127.0.0.1 -P 3306 -u pmolzer -p
+# Expected: Connection refused or timeout (since port 3306 is not mapped to host)
+```
+
+## 2. Verify Data Persistence (Terminal)
+
+Data should persist even if the container is removed.
+
+**Command:**
+```bash
+# 1. Create a test table
+docker exec -it mariadb mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "USE $MYSQL_DATABASE; CREATE TABLE test_table (id INT); INSERT INTO test_table VALUES (1);"
+
+# 2. Verify data exists
+docker exec -it mariadb mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "USE $MYSQL_DATABASE; SELECT * FROM test_table;"
+# Expected Output:
+# +------+
+# | id   |
+# +------+
+# |    1 |
+# +------+
+
+# 3. Remove containers
+make down
+
+# 4. Restart containers
+make up
+
+# 5. Verify data still exists
+docker exec -it mariadb mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "USE $MYSQL_DATABASE; SELECT * FROM test_table;"
+# Expected Output: Same as above (id: 1)
+```
+
+## 3. Verify User Creation (Terminal)
+
+The initialization script should have created the specific user and database.
+
+**Command:**
+```bash
+docker exec -it mariadb mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "SELECT User, Host FROM mysql.user;"
+```
+
+**Expected Result:**
+You should see your custom user (e.g., `pmolzer`) and `root` in the list.
+
+=== ./srcs/requirements/wordpress/conf/custom.ini ===
+; Custom PHP configuration for WordPress
+; This file overrides default PHP settings for better WordPress performance
+
+[PHP]
+; Memory limit - WordPress needs more than the default 128M
+memory_limit = 512M
+
+; Maximum execution time for scripts
+max_execution_time = 300
+
+; Maximum time for input parsing
+max_input_time = 300
+
+; Maximum size of POST data that PHP will accept
+post_max_size = 64M
+
+; Maximum allowed size for uploaded files
+upload_max_filesize = 64M
+
+; Maximum number of files that can be uploaded at once
+max_file_uploads = 20
+
+; Error reporting
+display_errors = Off
+log_errors = On
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
+
+=== ./srcs/requirements/wordpress/conf/www.conf ===
+; PHP-FPM pool configuration for WordPress
+; This file configures the PHP-FPM worker pool
+
+[www]
+; Pool name
+user = nobody
+group = nobody
+
+; Listen on port 9000 (all interfaces) for connections from NGINX
+listen = 9000
+
+; Allow connections from any IP (required for Docker networking)
+listen.allowed_clients = any
+
+; Process management
+pm = dynamic
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
+
+; Timeouts
+request_terminate_timeout = 300
+
+; Logging
+php_admin_value[error_log] = /var/log/php81/error.log
+php_admin_flag[log_errors] = on
+
+=== ./srcs/requirements/wordpress/Dockerfile ===
+FROM alpine:3.19
+
+RUN apk update && apk add --no-cache \
+    php81 \
+    php81-fpm \
+    php81-mysqli \
+    php81-phar \
+    php81-iconv \
+    php81-mbstring \
+    php81-openssl \
+    curl \
+    mariadb-client
+
+RUN ln -s /usr/bin/php81 /usr/bin/php
+
+# Install WP-CLI
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && \
+    mv wp-cli.phar /usr/local/bin/wp
+
+# Copy PHP-FPM and PHP configuration files
+COPY conf/www.conf /etc/php81/php-fpm.d/www.conf
+COPY conf/custom.ini /etc/php81/conf.d/custom.ini
+
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+WORKDIR /var/www/html
+
+EXPOSE 9000
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm81", "-F"]
+=== ./srcs/requirements/wordpress/tools/entrypoint.sh ===
+#!/bin/sh
+
+# Wait for MariaDB
+while ! mariadb -h mariadb -u$MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE --silent; do
+    echo "Waiting for MariaDB..."
+    sleep 2
+done
+
+# Download WordPress
+if [ ! -f wp-config.php ]; then
+    echo "Downloading WordPress..."
+    wp core download --allow-root
+
+    echo "Configuring WordPress..."
+    wp config create \
+        --dbname=$MYSQL_DATABASE \
+        --dbuser=$MYSQL_USER \
+        --dbpass=$MYSQL_PASSWORD \
+        --dbhost=mariadb \
+        --allow-root
+
+    echo "Installing WordPress..."
+    wp core install \
+        --url=$DOMAIN_NAME \
+        --title="Inception" \
+        --admin_user=$WP_ADMIN_USER \
+        --admin_password=$WP_ADMIN_PASSWORD \
+        --admin_email=$WP_ADMIN_EMAIL \
+        --allow-root
+
+    echo "Creating user..."
+    wp user create \
+        $WP_USER \
+        $WP_USER@example.com \
+        --role=author \
+        --user_pass=$WP_PASSWORD \
+        --allow-root
+fi
+
+echo "Starting PHP-FPM..."
+exec "$@"
+=== ./srcs/requirements/wordpress/TESTING.MD ===
+# Testing WordPress
+
+## 1. Verify Installation (Browser)
+
+Navigate to `https://pmolzer.42.fr`.
+
+**Expected Result:**
+- You should see the WordPress homepage (not the installation wizard).
+- The site title should match what you set in `.env` (e.g., "Inception").
+
+## 2. Verify Admin Login (Browser)
+
+Navigate to `https://pmolzer.42.fr/wp-admin`.
+
+**Credentials:**
+- Use the admin username and password from your `.env` file.
+
+**Expected Result:**
+- Successful login to the WordPress Dashboard.
+
+## 3. Verify Users (Browser/Terminal)
+
+**Browser:**
+- Go to "Users" in the dashboard.
+- You should see two users: the administrator and the second user (author/editor).
+
+**Terminal:**
+```bash
+# List users via WP-CLI
+docker exec -it wordpress wp user list --allow-root
+```
+**Expected Result:**
+- A table listing the users, their roles, and emails.
+
+## 4. Verify PHP-FPM (Terminal)
+
+Ensure PHP-FPM is running and handling requests.
+
+**Command:**
+```bash
+docker logs wordpress
+```
+
+**Expected Result:**
+- You should see logs indicating PHP-FPM started (e.g., `ready to handle connections`).
+- You might see access logs if you've visited the site.
+
+## 5. Verify Database Connection (Terminal)
+
+If the site loads, the database connection is working. If you see "Error establishing a database connection", check the logs.
+
+**Command:**
+```bash
+docker exec -it wordpress wp db check --allow-root
+```
+
+**Expected Result:**
+- `Success: The database is available.`
+
+=== ./srcs/requirements/nginx/conf/nginx.conf ===
+server {
+    listen 443 ssl; # listen on port 443 for HTTPS
+    listen [::]:443 ssl; # listen on both IPv4 and IPv6
+
+    server_name pmolzer.42.fr; # server name
+
+    ssl_certificate /etc/nginx/ssl/inception.crt; # path to SSL certificate
+    ssl_certificate_key /etc/nginx/ssl/inception.key; # path to SSL private key
+    #ssl_protocols TLSv1.2 TLSv1.3; # enable TLSv1.2 and TLSv1.3
+    
+    ssl_protocols TLSv1.3; # enable TLSv1.3, only one between TLSv1.2 and TLSv1.3 can be enabled in the project
+    # TSL is a more secure version of SSL, and more modern
+    # TLSv1.3 was published in 2018
+    # this enables HTTPS (HTTP over SSL/TLS)
+    
+
+    root /var/www/html;
+    index index.php index.html;
+
+    #location / {
+    #    try_files $uri $uri/ =404;
+    #}
+
+    location / {
+    try_files $uri $uri/ /index.php?$args;
+    }
+
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass wordpress:9000;
+        fastcgi_index index.php;
+        #include fastcgi_params;
+        include /etc/nginx/fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+}
+=== ./srcs/requirements/nginx/Dockerfile ===
+FROM alpine:3.19
+
+RUN apk update && apk add --no-cache nginx openssl
+
+COPY conf/nginx.conf /etc/nginx/http.d/default.conf
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+EXPOSE 443
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
+=== ./srcs/requirements/nginx/tools/entrypoint.sh ===
+#!/bin/sh
+
+# need shebang because alpine doesn't have /bin/bash
+# alpine comes with ash by default
+
+# Create SSL directory
+mkdir -p /etc/nginx/ssl
+
+# Generate self-signed certificate
+# if the certificate doesn't exist, generate it
+# we use openssl to generate a self-signed certificate
+
+# A self-signed certificate is a certificate that is not signed 
+# by a certificate authority (CA)
+# It is used for testing and development purposes
+# A certificate authority is a trusted entity that issues digital certificates
+
+# openssl is a tool to generate a self-signed certificate
+# -x509: X.509 is a standard for public key infrastructure (PKI)
+# -nodes: don't encrypt the private key
+# -days: certificate validity period
+# -newkey: generate a new private key
+# rsa:2048: generate a 2048-bit RSA private key
+# -keyout: output the private key
+# -out: output the certificate
+# -subj: subject of the certificate
+if [ ! -f /etc/nginx/ssl/inception.crt ]; then
+    echo "Generating SSL certificate..."
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout /etc/nginx/ssl/inception.key \
+        -out /etc/nginx/ssl/inception.crt \
+        -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=Inception/CN=pmolzer.42.fr"
+fi
+
+# NGINX needs a certificate and a private key to start
+# so we copy the certificate and the private key to the NGINX directory
+# and then we start NGINX
+
+
+echo "Starting NGINX..."
+exec "$@"
+=== ./srcs/requirements/nginx/TESTING.MD ===
+# Testing NGINX
+
+## 1. Verify TLS Version (Terminal)
+
+The subject requires TLSv1.2 or TLSv1.3 only.
+
+**Command:**
+```bash
+# Test TLS 1.2 (Should succeed)
+openssl s_client -connect pmolzer.42.fr:443 -tls1_2
+
+# Test TLS 1.3 (Should succeed)
+openssl s_client -connect pmolzer.42.fr:443 -tls1_3
+
+# Test TLS 1.0 (Should fail)
+openssl s_client -connect pmolzer.42.fr:443 -tls1
+
+# Test TLS 1.1 (Should fail)
+openssl s_client -connect pmolzer.42.fr:443 -tls1_1
+```
+
+**Expected Result:**
+- TLS 1.2/1.3 commands should show the certificate chain and handshake details.
+- TLS 1.0/1.1 commands should fail with a handshake error or "no protocols available".
+
+## 2. Verify Port 443 Only (Terminal)
+
+Only port 443 should be exposed to the host.
+
+**Command:**
+```bash
+docker ps
+```
+
+**Expected Result:**
+Check the `PORTS` column for the `nginx` container. It should only show `0.0.0.0:443->443/tcp`. It should **not** show port 80.
+
+## 3. Verify Certificate (Browser)
+
+1.  Open `https://pmolzer.42.fr` in your browser.
+2.  Click the "Not Secure" or lock icon in the address bar.
+3.  View the certificate details.
+4.  **Expected Result**:
+    - Issued to: `pmolzer.42.fr` (or similar).
+    - Issued by: `pmolzer.42.fr` (Self-signed).
+    - Protocol: TLS 1.2 or 1.3.
+
+## 4. Verify HTTP Redirect (Optional but good practice)
+
+If you try to access `http://pmolzer.42.fr` (port 80), it should either fail (connection refused) or redirect to HTTPS, depending on your implementation. The subject strictly says "accessible only via port 443", so connection refused on port 80 is the most compliant behavior.

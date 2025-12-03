@@ -4,7 +4,15 @@
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Initializing database..."
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
+    # mariadb needs a temporary server to initialize the database
+    # the server is started with the --bootstrap option
+    # it will create the database and the user
+    # then it will stop
 
+    # mysql_install_db is a script that will create the database and the user
+
+    # Initialize the database
+    
     echo "Starting temporary MariaDB server..."
     /usr/bin/mysqld --user=mysql --bootstrap << EOF
 USE mysql;

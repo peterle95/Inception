@@ -8,11 +8,16 @@ RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Configure MariaDB to listen on all interfaces
-RUN sed -i "s|skip-networking|# skip-networking|g" /etc/my.cnf.d/mariadb-server.cnf && \
-    sed -i "s|.*bind-address\s*=.*|bind-address = 0.0.0.0|g" /etc/my.cnf.d/mariadb-server.cnf
+# Copy custom MariaDB configuration
+COPY conf/50-server.cnf /etc/my.cnf.d/50-server.cnf
 
+# EXPOSE is the port that the container will listen on
+# it doesn't open the port, it just tells Docker that the container will listen on that port
+# and that the port should be mapped to the host
 EXPOSE 3306
 
+# ENTRYPOINT is the script that will be executed when the container starts
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["mysqld", "--user=mysql"]
+
+# CMD is the command that will be executed when the container starts
+CMD ["mysqld", "--user=mysql"] 

@@ -1,0 +1,5 @@
+find . -type f -not -path '*/\.*' -not -path '*/data/*' -not -name '*.md' -not -name 'code.txt' \  
+                                                -exec sh -c 'echo "=== $1 ==="; cat "$1"; echo ""' _ {} \; > code.txt
+
+
+

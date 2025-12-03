@@ -1,0 +1,50 @@
+#
+# These groups are read by MariaDB server.
+# Use it for options that only the server (but not clients) should see
+
+# this is read by the standalone daemon and embedded servers
+[server]
+
+# this is only for the mysqld standalone daemon
+[mysqld]
+
+#
+# * Basic Settings
+#
+
+user                    = mysql
+pid-file                = /run/mysqld/mysqld.pid
+basedir                 = /usr
+datadir                 = /var/lib/mysql
+
+# Broken reverse DNS slows down connections considerably and name resolve is
+# safe to skip if there are no "host by domain name" access grants
+skip-name-resolve
+
+# Allow connections from any IP address (required for Docker networking)
+bind-address            = 0.0.0.0
+port                    = 3306
+
+#
+# * Character sets
+#
+
+# MySQL/MariaDB default is Latin1, but we rather default to the full
+# utf8 4-byte character set.
+character-set-server  = utf8mb4
+collation-server      = utf8mb4_general_ci
+
+#
+# * InnoDB
+#
+
+# InnoDB is enabled by default with a 10MB datafile in /var/lib/mysql/.
+# Read the manual for more InnoDB related options. There are many!
+
+# this is only for embedded server
+[embedded]
+
+# This group is only read by MariaDB servers, not by MySQL.
+# If you use the same .cnf file for MySQL and MariaDB,
+# you can put MariaDB-only options here
+[mariadb]

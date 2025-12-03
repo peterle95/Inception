@@ -18,9 +18,9 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp
 
-# Configure PHP-FPM
-RUN sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php81/php-fpm.d/www.conf && \
-    sed -i 's/memory_limit = 128M/memory_limit = 512M/g' /etc/php81/php.ini
+# Copy PHP-FPM and PHP configuration files
+COPY conf/www.conf /etc/php81/php-fpm.d/www.conf
+COPY conf/custom.ini /etc/php81/conf.d/custom.ini
 
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
