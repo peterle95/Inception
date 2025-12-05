@@ -17,3 +17,35 @@ Waiting for MariaDB...
 <hr><center>nginx/1.22.1</center>
 </body>
 </html>
+
+pmolzer@inception ~/inception (debian)> docker logs mariadb 2>&1 | tail -30
+mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
+2025-12-05 14:07:39 0 [ERROR] Aborting
+Database already initialized.
+Starting MariaDB...
+mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
+2025-12-05 14:07:40 0 [ERROR] Aborting
+Database already initialized.
+Starting MariaDB...
+mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
+2025-12-05 14:07:41 0 [ERROR] Aborting
+Database already initialized.
+Starting MariaDB...
+mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
+2025-12-05 14:07:43 0 [ERROR] Aborting
+Database already initialized.
+Starting MariaDB...
+mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
+2025-12-05 14:07:46 0 [ERROR] Aborting
+Database already initialized.
+Starting MariaDB...
+mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
+2025-12-05 14:07:53 0 [ERROR] Aborting
+Database already initialized.
+Starting MariaDB...
+mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
+2025-12-05 14:08:06 0 [ERROR] Aborting
+Database already initialized.
+Starting MariaDB...
+mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
+2025-12-05 14:08:32 0 [ERROR] Aborting
