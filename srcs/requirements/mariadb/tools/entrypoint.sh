@@ -1,9 +1,11 @@
 #!/bin/sh
+set -e
 
 # Check if the database is already initialized
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Initializing database..."
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
+
     # mariadb needs a temporary server to initialize the database
     # the server is started with the --bootstrap option
     # it will create the database and the user
@@ -14,7 +16,7 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     # Initialize the database
     
     echo "Starting temporary MariaDB server..."
-    /usr/bin/mysqld --user=mysql --bootstrap << EOF
+    if /usr/bin/mysqld --user=mysql --bootstrap << EOF
 USE mysql;
 FLUSH PRIVILEGES;
 
@@ -31,7 +33,14 @@ GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
 -- Flush privileges
 FLUSH PRIVILEGES;
 EOF
-    echo "Database initialized."
+    then
+        echo "Database initialized successfully."
+    else
+        echo "Error: Failed to initialize database."
+        exit 1
+    fi
+else
+    echo "Database already initialized."
 fi
 
 echo "Starting MariaDB..."
