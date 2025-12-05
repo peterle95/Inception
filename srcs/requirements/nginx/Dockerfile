@@ -1,8 +1,11 @@
-FROM alpine:3.19
+FROM debian:bookworm
 
-RUN apk update && apk add --no-cache nginx openssl
+RUN apt-get update && apt-get install -y \
+    nginx \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY conf/nginx.conf /etc/nginx/http.d/default.conf
+COPY conf/nginx.conf /etc/nginx/sites-available/default
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 

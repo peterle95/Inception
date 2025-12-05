@@ -212,6 +212,28 @@ username=pmolzer
 password=pmolzerverysecretpassword123
 === ./secrets/db_root_password.txt ===
 rootverysecretpassword123
+=== ./logs.txt ===
+pmolzer@inception ~/inception (debian)> docker logs mariadb 2>&1 | tail -20
+2025-12-05 14:28:11 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-05 14:28:11 0 [Note] InnoDB: log sequence number 46980; transaction id 14
+2025-12-05 14:28:11 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-05 14:28:11 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-05 14:28:11 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-05 14:28:11 0 [Note] InnoDB: Buffer pool(s) load completed at 251205 14:28:11
+2025-12-05 14:28:11 0 [Note] Server socket created on IP: '0.0.0.0', port: '3306'.
+2025-12-05 14:28:11 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 3306  Debian 12
+2025-12-05 14:28:13 3 [Warning] Aborted connection 3 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:15 4 [Warning] Aborted connection 4 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:17 5 [Warning] Aborted connection 5 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:19 6 [Warning] Aborted connection 6 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:21 7 [Warning] Aborted connection 7 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:23 8 [Warning] Aborted connection 8 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:25 9 [Warning] Aborted connection 9 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:27 10 [Warning] Aborted connection 10 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:29 11 [Warning] Aborted connection 11 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:31 12 [Warning] Aborted connection 12 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:33 13 [Warning] Aborted connection 13 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
 === ./srcs/docker-compose.yml ===
 version: '3.8'
 
@@ -304,25 +326,86 @@ secrets:
 # * Basic Settings
 #
 
-user                    = mysql
+#user                    = mysql
 pid-file                = /run/mysqld/mysqld.pid
 basedir                 = /usr
-datadir                 = /var/lib/mysql
+#datadir                 = /var/lib/mysql
+#tmpdir                  = /tmp
 
 # Broken reverse DNS slows down connections considerably and name resolve is
 # safe to skip if there are no "host by domain name" access grants
-skip-name-resolve
+#skip-name-resolve
 
-# Allow connections from any IP address (required for Docker networking)
+# Instead of skip-networking the default is now to listen only on
+# localhost which is more compatible and is not less secure.
 bind-address            = 0.0.0.0
-port                    = 3306
+
+#
+# * Fine Tuning
+#
+
+#key_buffer_size        = 128M
+#max_allowed_packet     = 1G
+#thread_stack           = 192K
+#thread_cache_size      = 8
+# This replaces the startup script and checks MyISAM tables if needed
+# the first time they are touched
+#myisam_recover_options = BACKUP
+#max_connections        = 100
+#table_cache            = 64
+
+#
+# * Logging and Replication
+#
+
+# Note: The configured log file or its directory need to be created
+# and be writable by the mysql user, e.g.:
+# $ sudo mkdir -m 2750 /var/log/mysql
+# $ sudo chown mysql /var/log/mysql
+
+# Both location gets rotated by the cronjob.
+# Be aware that this log type is a performance killer.
+# Recommend only changing this at runtime for short testing periods if needed!
+#general_log_file       = /var/log/mysql/mysql.log
+#general_log            = 1
+
+# When running under systemd, error logging goes via stdout/stderr to journald
+# and when running legacy init error logging goes to syslog due to
+# /etc/mysql/conf.d/mariadb.conf.d/50-mysqld_safe.cnf
+# Enable this if you want to have error logging into a separate file
+#log_error = /var/log/mysql/error.log
+# Enable the slow query log to see queries with especially long duration
+#log_slow_query_file    = /var/log/mysql/mariadb-slow.log
+#log_slow_query_time    = 10
+#log_slow_verbosity     = query_plan,explain
+#log-queries-not-using-indexes
+#log_slow_min_examined_row_limit = 1000
+
+# The following can be used as easy to replay backup logs or for replication.
+# note: if you are setting up a replication slave, see README.Debian about
+#       other settings you may need to change.
+#server-id              = 1
+#log_bin                = /var/log/mysql/mysql-bin.log
+expire_logs_days        = 10
+#max_binlog_size        = 100M
+
+#
+# * SSL/TLS
+#
+
+# For documentation, please read
+# https://mariadb.com/kb/en/securing-connections-for-client-and-server/
+#ssl-ca = /etc/mysql/cacert.pem
+#ssl-cert = /etc/mysql/server-cert.pem
+#ssl-key = /etc/mysql/server-key.pem
+#require-secure-transport = on
 
 #
 # * Character sets
 #
 
-# MySQL/MariaDB default is Latin1, but we rather default to the full
-# utf8 4-byte character set.
+# MySQL/MariaDB default is Latin1, but in Debian we rather default to the full
+# utf8 4-byte character set. See also client.cnf
 character-set-server  = utf8mb4
 collation-server      = utf8mb4_general_ci
 
@@ -332,6 +415,9 @@ collation-server      = utf8mb4_general_ci
 
 # InnoDB is enabled by default with a 10MB datafile in /var/lib/mysql/.
 # Read the manual for more InnoDB related options. There are many!
+# Most important is to give InnoDB 80 % of the system RAM for buffer use:
+# https://mariadb.com/kb/en/innodb-system-variables/#innodb_buffer_pool_size
+#innodb_buffer_pool_size = 8G
 
 # this is only for embedded server
 [embedded]
@@ -341,66 +427,75 @@ collation-server      = utf8mb4_general_ci
 # you can put MariaDB-only options here
 [mariadb]
 
-=== ./srcs/requirements/mariadb/Dockerfile ===
-FROM alpine:3.19
+# This group is only read by MariaDB-10.11 servers.
+# If you use the same .cnf file for MariaDB of different versions,
+# use this group for options that older servers don't understand
+[mariadb-10.11]
 
-RUN apk update && apk add --no-cache mariadb mariadb-client
+=== ./srcs/requirements/mariadb/Dockerfile ===
+FROM debian:bookworm
+
+RUN apt-get update && apt-get install -y \
+    mariadb-server \
+    mariadb-client \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create the run directory for mysqld
 RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
+RUN mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql
 
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Copy custom MariaDB configuration
-COPY conf/50-server.cnf /etc/my.cnf.d/50-server.cnf
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
-# EXPOSE is the port that the container will listen on
-# it doesn't open the port, it just tells Docker that the container will listen on that port
-# and that the port should be mapped to the host
 EXPOSE 3306
 
-# ENTRYPOINT is the script that will be executed when the container starts
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# CMD is the command that will be executed when the container starts
-CMD ["mysqld", "--user=mysql"] 
+CMD ["mysqld", "--user=mysql"]
 === ./srcs/requirements/mariadb/tools/entrypoint.sh ===
-#!/bin/sh
+#!/bin/bash
+set -e
 
-# Check if the database is already initialized
+# Fix ownership of data directory (important for mounted volumes)
+chown -R mysql:mysql /var/lib/mysql
+chown -R mysql:mysql /run/mysqld
+
+# Check if the database needs to be initialized
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Initializing database..."
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
-    # mariadb needs a temporary server to initialize the database
-    # the server is started with the --bootstrap option
-    # it will create the database and the user
-    # then it will stop
+fi
 
-    # mysql_install_db is a script that will create the database and the user
+# Start MariaDB temporarily to set up users
+echo "Starting temporary MariaDB server for user setup..."
+mysqld --user=mysql --skip-networking &
+pid="$!"
 
-    # Initialize the database
-    
-    echo "Starting temporary MariaDB server..."
-    /usr/bin/mysqld --user=mysql --bootstrap << EOF
-USE mysql;
-FLUSH PRIVILEGES;
+# Wait for MariaDB to be ready
+echo "Waiting for MariaDB to start..."
+for i in {1..30}; do
+    if mysqladmin ping --silent 2>/dev/null; then
+        break
+    fi
+    sleep 1
+done
 
--- Set root password
-ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-
--- Create database
+# Create database and user (idempotent - uses IF NOT EXISTS)
+echo "Setting up database and user..."
+mysql -u root <<EOF
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
-
--- Create user
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
-
--- Flush privileges
+ALTER USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 FLUSH PRIVILEGES;
 EOF
-    echo "Database initialized."
-fi
+
+echo "Database setup complete."
+
+# Stop the temporary server
+kill "$pid"
+wait "$pid" 2>/dev/null || true
 
 echo "Starting MariaDB..."
 exec "$@"
@@ -491,79 +586,83 @@ log_errors = On
 error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
 
 === ./srcs/requirements/wordpress/conf/www.conf ===
-; PHP-FPM pool configuration for WordPress
-; This file configures the PHP-FPM worker pool
-
 [www]
-; Pool name
-user = nobody
-group = nobody
+user = www-data
+group = www-data
 
-; Listen on port 9000 (all interfaces) for connections from NGINX
 listen = 9000
+listen.owner = www-data
+listen.group = www-data
 
-; Allow connections from any IP (required for Docker networking)
-listen.allowed_clients = any
-
-; Process management
 pm = dynamic
 pm.max_children = 5
 pm.start_servers = 2
 pm.min_spare_servers = 1
 pm.max_spare_servers = 3
 
-; Timeouts
 request_terminate_timeout = 300
 
-; Logging
-php_admin_value[error_log] = /var/log/php81/error.log
+php_admin_value[error_log] = /var/log/php8.2-fpm.log
 php_admin_flag[log_errors] = on
 
+clear_env = no
 === ./srcs/requirements/wordpress/Dockerfile ===
-FROM alpine:3.19
+FROM debian:bookworm
 
-RUN apk update && apk add --no-cache \
-    php81 \
-    php81-fpm \
-    php81-mysqli \
-    php81-phar \
-    php81-iconv \
-    php81-mbstring \
-    php81-openssl \
+RUN apt-get update && apt-get install -y \
+    php8.2 \
+    php8.2-fpm \
+    php8.2-mysqli \
+    php8.2-mbstring \
+    php8.2-xml \
+    php8.2-curl \
     curl \
-    mariadb-client
-
-RUN ln -s /usr/bin/php81 /usr/bin/php
+    mariadb-client \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install WP-CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp
 
-# Copy PHP-FPM and PHP configuration files
-COPY conf/www.conf /etc/php81/php-fpm.d/www.conf
-COPY conf/custom.ini /etc/php81/conf.d/custom.ini
+# Copy PHP-FPM configuration
+COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf
+COPY conf/custom.ini /etc/php/8.2/fpm/conf.d/99-custom.ini
 
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Create necessary directories with correct permissions
+RUN mkdir -p /var/www/html && \
+    chown -R www-data:www-data /var/www/html && \
+    mkdir -p /run/php && \
+    chown -R www-data:www-data /run/php
 
 WORKDIR /var/www/html
 
 EXPOSE 9000
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["php-fpm81", "-F"]
+CMD ["php-fpm8.2", "-F"]
 === ./srcs/requirements/wordpress/tools/entrypoint.sh ===
-#!/bin/sh
+#!/bin/bash
+set -e
+
+# Ensure correct permissions
+chown -R www-data:www-data /var/www/html
 
 # Wait for MariaDB
-while ! mariadb -h mariadb -u$MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE --silent; do
+while ! mariadb -h mariadb -u$MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE --silent 2>/dev/null; do
     echo "Waiting for MariaDB..."
     sleep 2
 done
 
+echo "MariaDB is available."
+
 # Download WordPress
 if [ ! -f wp-config.php ]; then
+    echo "WordPress configuration file not found. Starting installation..."
+
     echo "Downloading WordPress..."
     wp core download --allow-root
 
@@ -591,6 +690,11 @@ if [ ! -f wp-config.php ]; then
         --role=author \
         --user_pass=$WP_PASSWORD \
         --allow-root
+
+    # Fix permissions after installation
+    chown -R www-data:www-data /var/www/html
+else
+    echo "WordPress is already installed."
 fi
 
 echo "Starting PHP-FPM..."
@@ -657,49 +761,45 @@ docker exec -it wordpress wp db check --allow-root
 
 === ./srcs/requirements/nginx/conf/nginx.conf ===
 server {
-    listen 443 ssl; # listen on port 443 for HTTPS
-    listen [::]:443 ssl; # listen on both IPv4 and IPv6
+    listen 443 ssl;
+    listen [::]:443 ssl;
 
-    server_name pmolzer.42.fr; # server name
+    server_name pmolzer.42.fr;
 
-    ssl_certificate /etc/nginx/ssl/inception.crt; # path to SSL certificate
-    ssl_certificate_key /etc/nginx/ssl/inception.key; # path to SSL private key
-    #ssl_protocols TLSv1.2 TLSv1.3; # enable TLSv1.2 and TLSv1.3
-    
-    ssl_protocols TLSv1.3; # enable TLSv1.3, only one between TLSv1.2 and TLSv1.3 can be enabled in the project
-    # TSL is a more secure version of SSL, and more modern
-    # TLSv1.3 was published in 2018
-    # this enables HTTPS (HTTP over SSL/TLS)
-    
+    ssl_certificate /etc/nginx/ssl/inception.crt;
+    ssl_certificate_key /etc/nginx/ssl/inception.key;
+    ssl_protocols TLSv1.3;
 
     root /var/www/html;
-    index index.php index.html;
-
-    #location / {
-    #    try_files $uri $uri/ =404;
-    #}
+    index index.php index.html index.htm;
 
     location / {
-    try_files $uri $uri/ /index.php?$args;
+        try_files $uri $uri/ /index.php?$args;
     }
 
-
-    location ~ \.php$ { # if the request is for a PHP file
+    location ~ \.php$ {
         fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass wordpress:9000; # pass the request to the PHP-FPM container
+        fastcgi_pass wordpress:9000;
         fastcgi_index index.php;
-        #include fastcgi_params;
-        include /etc/nginx/fastcgi_params;
+        include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param PATH_INFO $fastcgi_path_info;
     }
+
+    # Deny access to hidden files
+    location ~ /\. {
+        deny all;
+    }
 }
 === ./srcs/requirements/nginx/Dockerfile ===
-FROM alpine:3.19
+FROM debian:bookworm
 
-RUN apk update && apk add --no-cache nginx openssl
+RUN apt-get update && apt-get install -y \
+    nginx \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY conf/nginx.conf /etc/nginx/http.d/default.conf
+COPY conf/nginx.conf /etc/nginx/sites-available/default
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
@@ -708,32 +808,12 @@ EXPOSE 443
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
 === ./srcs/requirements/nginx/tools/entrypoint.sh ===
-#!/bin/sh
-
-# need shebang because alpine doesn't have /bin/bash
-# alpine comes with ash by default
+#!/bin/bash
 
 # Create SSL directory
 mkdir -p /etc/nginx/ssl
 
 # Generate self-signed certificate
-# if the certificate doesn't exist, generate it
-# we use openssl to generate a self-signed certificate
-
-# A self-signed certificate is a certificate that is not signed 
-# by a certificate authority (CA)
-# It is used for testing and development purposes
-# A certificate authority is a trusted entity that issues digital certificates
-
-# openssl is a tool to generate a self-signed certificate
-# -x509: X.509 is a standard for public key infrastructure (PKI)
-# -nodes: don't encrypt the private key
-# -days: certificate validity period
-# -newkey: generate a new private key
-# rsa:2048: generate a 2048-bit RSA private key
-# -keyout: output the private key
-# -out: output the certificate
-# -subj: subject of the certificate
 if [ ! -f /etc/nginx/ssl/inception.crt ]; then
     echo "Generating SSL certificate..."
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
@@ -741,11 +821,6 @@ if [ ! -f /etc/nginx/ssl/inception.crt ]; then
         -out /etc/nginx/ssl/inception.crt \
         -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=Inception/CN=pmolzer.42.fr"
 fi
-
-# NGINX needs a certificate and a private key to start
-# so we copy the certificate and the private key to the NGINX directory
-# and then we start NGINX
-
 
 echo "Starting NGINX..."
 exec "$@"
