@@ -1,6 +1,18 @@
 #!/bin/bash
 set -e
 
+# Read confidential information from Docker secrets
+if [ -f /run/secrets/db_password ]; then
+    MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+    export MYSQL_PASSWORD
+fi
+
+if [ -f /run/secrets/credentials ]; then
+    WP_ADMIN_USER=$(grep '^username=' /run/secrets/credentials | cut -d'=' -f2)
+    WP_ADMIN_PASSWORD=$(grep '^password=' /run/secrets/credentials | cut -d'=' -f2)
+    export WP_ADMIN_USER WP_ADMIN_PASSWORD
+fi
+
 # Ensure correct permissions
 chown -R www-data:www-data /var/www/html
 
