@@ -1,0 +1,19 @@
+pmolzer@inception ~/inception (debian)> # Check MariaDB is now on port 3306 (not port 0)
+                                        docker logs mariadb 2>&1 | grep "port:"
+                                        # Should show: port: 3306
+
+                                        # Check WordPress connected and installed
+                                        docker logs wordpress
+                                        # Should show: "WordPress installation complete."
+
+                                        # Test the site
+                                        curl -k https://pmolzer.42.fr
+Waiting for MariaDB...
+Waiting for MariaDB...
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.22.1</center>
+</body>
+</html>
