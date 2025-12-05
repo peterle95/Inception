@@ -1,0 +1,103 @@
+pmolzer@inception ~/inception (maria)> docker exec -it mariadb mysql -u root -p -e "SELECT 
+User, Host FROM mysql.user;"
+
+
+
+Enter password: 
++-------------+-----------+
+| User        | Host      |
++-------------+-----------+
+| wpuser      | %         |
+| mariadb.sys | localhost |
+| mysql       | localhost |
+| root        | localhost |
++-------------+-----------+
+pmolzer@inception ~/inception (maria)> docker exec -it --user www-data wordpress wp user li
+st --allow-root
+
++----+------------+--------------+------------------+------------------+------------------+
+| ID | user_login | display_name | user_email       | user_registered  | roles            |
++----+------------+--------------+------------------+------------------+------------------+
+| 2  | normaluser | normaluser   | normaluser@examp | 2025-12-05 15:57 | author           |
+|    |            |              | le.com           | :25              |                  |
+| 1  | pmolzer    | pmolzer      | pmolzer@student. | 2025-12-05 15:57 | administrator    |
+|    |            |              | 42.fr            | :25              |                  |
++----+------------+--------------+------------------+------------------+------------------+
+pmolzer@inception ~/inception (maria)> docker exec -it wordpress wp db check --allow-root
+
+wordpress.wp_commentmeta                           OK
+wordpress.wp_comments                              OK
+wordpress.wp_links                                 OK
+wordpress.wp_options                               OK
+wordpress.wp_postmeta                              OK
+wordpress.wp_posts                                 OK
+wordpress.wp_term_relationships                    OK
+wordpress.wp_term_taxonomy                         OK
+wordpress.wp_termmeta                              OK
+wordpress.wp_terms                                 OK
+wordpress.wp_usermeta                              OK
+wordpress.wp_users                                 OK
+Success: Database checked.
+pmolzer@inception ~/inception (maria)> docker exec -it mariadb mysql -u root -p -e "SHOW TA
+BLES FROM wordpress;"
+
+Enter password: 
++-----------------------+
+| Tables_in_wordpress   |
++-----------------------+
+| wp_commentmeta        |
+| wp_comments           |
+| wp_links              |
+| wp_options            |
+| wp_postmeta           |
+| wp_posts              |
+| wp_term_relationships |
+| wp_term_taxonomy      |
+| wp_termmeta           |
+| wp_terms              |
+| wp_usermeta           |
+| wp_users              |
++-----------------------+
+pmolzer@inception ~/inception (maria)> openssl s_client -connect pmolzer.42.fr:443 -servern
+ame pmolzer.42.fr -showcerts </dev/null 2>/dev/null | openssl x509 -noout -dates
+
+notBefore=Dec  5 16:23:03 2025 GMT
+notAfter=Dec  5 16:23:03 2026 GMT
+pmolzer@inception ~/inception (maria)> docker port nginx
+
+443/tcp -> 0.0.0.0:443
+443/tcp -> [::]:443
+pmolzer@inception ~/inception (maria)> curl -kI https://pmolzer.42.fr
+
+HTTP/1.1 200 OK
+Server: nginx/1.22.1
+Date: Fri, 05 Dec 2025 16:27:01 GMT
+Content-Type: text/html; charset=UTF-8
+Connection: keep-alive
+Link: <https://pmolzer.42.fr/index.php?rest_route=/>; rel="https://api.w.org/"
+
+pmolzer@inception ~/inception (maria)> docker exec -it mariadb mysql -u root -p -e "CREATE 
+DATABASE test_persistence; SHOW DATABASES;"
+                                       docker restart mariadb
+                                       docker exec -it mariadb mysql -u root -p -e "SHOW DA
+TABASES;"
+
+Enter password: 
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
+| test_persistence   |
+| wordpress          |
++--------------------+
+mariadb
+Enter password: ⏎                                                                          
+pmolzer@inception ~/inception (maria) [SIGKILL]> rootSecurePassword123!
+fish: Unknown command: rootSecurePassword123!
+pmolzer@inception ~/inception (maria) [127]> docker exec -it wordpress service php8.2-fpm s
+tatus
+
+php-fpm8.2 is running.

@@ -1,0 +1,98 @@
+pmolzer@inception ~/inception (maria) [1]> docker history --no-trunc nginx
+                                           docker history --no-trunc mariadb
+                                           docker history --no-trunc wordpress
+
+IMAGE                                                                     CREATED          CREATED BY                                                                                                                SIZE      COMMENT
+sha256:205b3a3a821618a682a9c5980f81c76e9b8300305c5c5f1a47c19c04203eb1ca   27 minutes ago   CMD ["nginx" "-g" "daemon off;"]                                                                                          0B        buildkit.dockerfile.v0
+<missing>                                                                 27 minutes ago   ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]                                                                               0B        buildkit.dockerfile.v0
+<missing>                                                                 27 minutes ago   EXPOSE [443/tcp]                                                                                                          0B        buildkit.dockerfile.v0
+<missing>                                                                 27 minutes ago   RUN /bin/sh -c chmod +x /usr/local/bin/entrypoint.sh # buildkit                                                           20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 27 minutes ago   COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh # buildkit                                                          20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 35 minutes ago   COPY conf/nginx.conf /etc/nginx/sites-available/default # buildkit                                                        20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 35 minutes ago   RUN /bin/sh -c apt-get update && apt-get install -y     nginx     openssl     && rm -rf /var/lib/apt/lists/* # buildkit   21.7MB    buildkit.dockerfile.v0
+<missing>                                                                 2 weeks ago      # debian.sh --arch 'amd64' out/ 'bookworm' '@1763337600'                                                                  133MB     debuerreotype 0.16
+IMAGE                                                                     CREATED          CREATED BY                                                                                                                                SIZE      COMMENT
+sha256:dd6b869be09bdb5783f8ef5b20a603c43573e0f6f98e7529010e4b5d6091ed97   9 minutes ago    CMD ["mysqld" "--user=mysql"]                                                                                                             0B        buildkit.dockerfile.v0
+<missing>                                                                 9 minutes ago    ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]                                                                                               0B        buildkit.dockerfile.v0
+<missing>                                                                 9 minutes ago    EXPOSE [3306/tcp]                                                                                                                         0B        buildkit.dockerfile.v0
+<missing>                                                                 9 minutes ago    COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf # buildkit                                                                20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 9 minutes ago    RUN /bin/sh -c chmod +x /usr/local/bin/entrypoint.sh # buildkit                                                                           20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 9 minutes ago    COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh # buildkit                                                                          20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 35 minutes ago   RUN /bin/sh -c mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql # buildkit                                                  20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 35 minutes ago   RUN /bin/sh -c mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld # buildkit                                                        12.3kB    buildkit.dockerfile.v0
+<missing>                                                                 35 minutes ago   RUN /bin/sh -c apt-get update && apt-get install -y     mariadb-server     mariadb-client     && rm -rf /var/lib/apt/lists/* # buildkit   398MB     buildkit.dockerfile.v0
+<missing>                                                                 2 weeks ago      # debian.sh --arch 'amd64' out/ 'bookworm' '@1763337600'                                                                                  133MB     debuerreotype 0.16
+IMAGE                                                                     CREATED          CREATED BY                                                                                                                                                                                                                     SIZE      COMMENT
+sha256:03df1851cfc604e415c95594b26fcc75f7f56aa260669cfbd6e4a29b9bdca365   33 minutes ago   CMD ["php-fpm8.2" "-F"]                                                                                                                                                                                                        0B        buildkit.dockerfile.v0
+<missing>                                                                 33 minutes ago   ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]                                                                                                                                                                                    0B        buildkit.dockerfile.v0
+<missing>                                                                 33 minutes ago   EXPOSE [9000/tcp]                                                                                                                                                                                                              0B        buildkit.dockerfile.v0
+<missing>                                                                 33 minutes ago   WORKDIR /var/www/html                                                                                                                                                                                                          4.1kB     buildkit.dockerfile.v0
+<missing>                                                                 33 minutes ago   RUN /bin/sh -c mkdir -p /var/www/html &&     chown -R www-data:www-data /var/www/html &&     mkdir -p /run/php &&     chown -R www-data:www-data /run/php # buildkit                                                           16.4kB    buildkit.dockerfile.v0
+<missing>                                                                 33 minutes ago   RUN /bin/sh -c chmod +x /usr/local/bin/entrypoint.sh # buildkit                                                                                                                                                                20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 33 minutes ago   COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh # buildkit                                                                                                                                                               20.5kB    buildkit.dockerfile.v0
+<missing>                                                                 35 minutes ago   COPY conf/custom.ini /etc/php/8.2/fpm/conf.d/99-custom.ini # buildkit                                                                                                                                                          28.7kB    buildkit.dockerfile.v0
+<missing>                                                                 35 minutes ago   COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf # buildkit                                                                                                                                                                 28.7kB    buildkit.dockerfile.v0
+<missing>                                                                 35 minutes ago   RUN /bin/sh -c curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar &&     chmod +x wp-cli.phar &&     mv wp-cli.phar /usr/local/bin/wp # buildkit                                                7.16MB    buildkit.dockerfile.v0
+<missing>                                                                 35 minutes ago   RUN /bin/sh -c apt-get update && apt-get install -y     php8.2     php8.2-fpm     php8.2-mysqli     php8.2-mbstring     php8.2-xml     php8.2-curl     curl     mariadb-client     && rm -rf /var/lib/apt/lists/* # buildkit   259MB     buildkit.dockerfile.v0
+<missing>                                                                 2 weeks ago      # debian.sh --arch 'amd64' out/ 'bookworm' '@1763337600'                                                                                                                                                                       133MB     debuerreotype 0.16
+
+
+
+
+Your `docker history` output **confirms that all three images (`nginx`, `mariadb`, `wordpress`) were built from your own Dockerfiles** and **not pulled from DockerHub**. Here’s how you can tell:
+
+---
+
+## **Key Evidence from Your Output**
+
+### 1. **Buildkit and Local Commands**
+- Each image’s history shows **`buildkit.dockerfile.v0`** and the exact commands from your `Dockerfile`:
+  - `RUN apt-get update && apt-get install -y ...`
+  - `COPY conf/nginx.conf /etc/nginx/sites-available/default`
+  - `COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh`
+  - `ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]`
+- These match the instructions in your `Dockerfile` for each service.
+
+### 2. **Base Image**
+- The last layer for each image is:
+  ```
+  <missing>                                                                 2 weeks ago      # debian.sh --arch 'amd64' out/ 'bookworm' '@1763337600'   133MB     debuerreotype 0.16
+  ```
+  - This is the **Debian Bookworm** base image, which you specified in your `Dockerfile` (`FROM debian:bookworm`).
+  - If the images were pulled from DockerHub, this line would reference a DockerHub repository (e.g., `nginx:latest`).
+
+### 3. **No DockerHub References**
+- There are **no references to DockerHub** (e.g., `nginx@sha256:...`, `mariadb:latest`, etc.) in the history.
+- The `<missing>` tags are normal for locally built images and do not indicate a pull from DockerHub.
+
+### 4. **Custom Entrypoints and Configs**
+- Each image has custom entrypoints and config files copied in, as defined in your `Dockerfile`:
+  - `COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh`
+  - `COPY conf/nginx.conf /etc/nginx/sites-available/default`
+  - `COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf`
+- These are unique to your project and not present in standard DockerHub images.
+
+---
+
+## **Summary Table**
+
+| Image      | Evidence of Local Build                                                                 |
+|------------|----------------------------------------------------------------------------------------|
+| nginx      | Custom `nginx.conf`, `entrypoint.sh`, Debian Bookworm base, no DockerHub refs.          |
+| mariadb    | Custom `50-server.cnf`, `entrypoint.sh`, Debian Bookworm base, no DockerHub refs.        |
+| wordpress  | Custom `www.conf`, `entrypoint.sh`, Debian Bookworm base, no DockerHub refs.             |
+
+---
+
+## **Final Verdict**
+**Your images were built from your own Dockerfiles and not pulled from DockerHub.**
+This is exactly what the subject requires: no ready-made images from DockerHub (except for the base Debian image, which is allowed).
+
+**If you want to be extra sure, you can also run:**
+```bash
+docker inspect --format='{{.RepoDigests}}' nginx mariadb wordpress
+```
+- The output should be `[]` for all three images, confirming they were not pulled from a registry.
+
+---
+**Your setup is compliant with the project requirements!** 🎉
