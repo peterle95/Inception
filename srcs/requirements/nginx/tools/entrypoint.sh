@@ -12,5 +12,12 @@ if [ ! -f /etc/nginx/ssl/inception.crt ]; then
         -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=Inception/CN=pmolzer.42.fr"
 fi
 
+# Wait for WordPress to be available
+echo "Waiting for WordPress..."
+while ! getent hosts wordpress > /dev/null 2>&1; do
+    sleep 1
+done
+echo "WordPress is available."
+
 echo "Starting NGINX..."
 exec "$@"
