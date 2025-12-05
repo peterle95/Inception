@@ -49,3 +49,9 @@ Database already initialized.
 Starting MariaDB...
 mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
 2025-12-05 14:08:32 0 [ERROR] Aborting
+
+pmolzer@inception ~/inception (debian)> docker ps -a
+CONTAINER ID   IMAGE       COMMAND                  CREATED          STATUS                          PORTS                                     NAMES
+d4d0408ff0f4   wordpress   "/usr/local/bin/entr…"   47 seconds ago   Up 46 seconds                   9000/tcp                                  wordpress
+a5e7228fdbb1   mariadb     "/usr/local/bin/entr…"   51 seconds ago   Restarting (1) 19 seconds ago                                             mariadb
+f954cfc8e068   nginx       "/usr/local/bin/entr…"   51 seconds ago   Up 47 seconds                   0.0.0.0:443->443/tcp, [::]:443->443/tcp   nginx
