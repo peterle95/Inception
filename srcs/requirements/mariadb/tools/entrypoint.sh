@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Fix ownership of data directory (important for mounted volumes)
+chown -R mysql:mysql /var/lib/mysql
+chown -R mysql:mysql /run/mysqld
+
 # Check if the database is already initialized
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Initializing database..."
