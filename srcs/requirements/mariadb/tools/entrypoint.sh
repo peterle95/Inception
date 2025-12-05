@@ -1,6 +1,17 @@
 #!/bin/bash
 set -e
 
+# Read secrets from Docker secrets files (with fallback to env vars)
+if [ -f /run/secrets/db_password ]; then
+    MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+    export MYSQL_PASSWORD
+fi
+
+if [ -f /run/secrets/db_root_password ]; then
+    MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+    export MYSQL_ROOT_PASSWORD
+fi
+
 # Fix ownership of data directory (important for mounted volumes)
 chown -R mysql:mysql /var/lib/mysql
 chown -R mysql:mysql /run/mysqld

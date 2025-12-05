@@ -26,7 +26,7 @@ clean: down # clean system
 
 fclean: clean # fully clean system
 	@echo "Fully cleaning system..."
-	docker run --rm -v /home/pmolzer/data:/data alpine rm -rf /data/mariadb /data/wordpress
+	docker run --rm -v /home/pmolzer/data:/data debian:bookworm-slim rm -rf /data/mariadb /data/wordpress
 	docker volume rm srcs_mariadb srcs_wordpress || true
 
 re: fclean all # rebuild from scratch
