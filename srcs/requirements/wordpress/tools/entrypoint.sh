@@ -66,6 +66,11 @@ if [ ! -f wp-config.php ]; then
         echo "Error: Failed to create user."
         exit 1
     fi
+    
+    # Ensure permissions are correct
+    echo "Setting permissions..."
+    chmod -R 755 /var/www/html
+    chown -R nobody:nobody /var/www/html
 else
     echo "WordPress is already installed."
 fi
