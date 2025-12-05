@@ -17,4 +17,4 @@ COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 EXPOSE 3306
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["mysqld"]
+CMD ["mysqld", "--user=mysql"]
