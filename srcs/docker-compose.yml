@@ -7,7 +7,7 @@ services:
     image: nginx
     pull_policy: never # this means that the images are not pulled from dockerhub
     ports:
-      - "443:443"
+      - "443:443" # this means that the container will be accessible on port 443 and the only container that will be accessible on port 443 by the host is the nginx container
     networks:
       - inception
     volumes:

@@ -25,23 +25,23 @@ This project implements a three-tier web application architecture:
 │  ┌───────────────────────────────────────────────────┐  │
 │  │         Docker Network: inception (bridge)        │  │
 │  │                                                   │  │
-│  │  ┌──────────────┐    ┌──────────────┐           │  │
-│  │  │    NGINX     │───▶│  WordPress   │           │  │
-│  │  │ (Port 443)   │    │  (PHP-FPM)   │           │  │
-│  │  │  TLS 1.2/3   │    │  Port 9000   │           │  │
-│  │  └──────┬───────┘    └──────┬───────┘           │  │
-│  │         │                    │                   │  │
-│  │         │                    ▼                   │  │
-│  │         │            ┌──────────────┐            │  │
-│  │         │            │   MariaDB    │            │  │
-│  │         │            │  Port 3306   │            │  │
-│  │         │            └──────────────┘            │  │
-│  │         │                                        │  │
-│  │         ▼                                        │  │
-│  │  ┌──────────────┐    ┌──────────────┐           │  │
-│  │  │   Volume:    │    │   Volume:    │           │  │
-│  │  │  wordpress   │    │   mariadb    │           │  │
-│  │  └──────────────┘    └──────────────┘           │  │
+│  │  ┌──────────────┐    ┌──────────────┐             │  │
+│  │  │    NGINX     │───▶│  WordPress   │             │  │
+│  │  │ (Port 443)   │    │  (PHP-FPM)   │             │  │
+│  │  │  TLS 1.3     │    │  Port 9000   │             │  │
+│  │  └──────┬───────┘    └──────┬───────┘             │  │
+│  │         │                    │                    │  │
+│  │         │                    ▼                    │  │
+│  │         │            ┌──────────────┐             │  │
+│  │         │            │   MariaDB    │             │  │
+│  │         │            │  Port 3306   │             │  │
+│  │         │            └──────────────┘             │  │
+│  │         │                                         │  │
+│  │         ▼                                         │  │
+│  │  ┌──────────────┐    ┌──────────────┐             │  │
+│  │  │   Volume:    │    │   Volume:    │             │  │
+│  │  │  wordpress   │    │   mariadb    │             │  │
+│  │  └──────────────┘    └──────────────┘             │  │
 │  └───────────────────────────────────────────────────┘  │
 │         │                      │                        │
 │         ▼                      ▼                        │
@@ -52,11 +52,11 @@ This project implements a three-tier web application architecture:
 
 ### Components
 
-- **NGINX**: Reverse proxy and TLS termination (only exposed port: 443)
-- **WordPress**: PHP-FPM application server (internal port 9000)
-- **MariaDB**: Database server (internal port 3306)
-- **Network**: Custom Docker bridge network (`inception`) for inter-container communication
-- **Volumes**: Persistent storage mounted to host directories
+- **NGINX**: Reverse proxy and TLS termination (only exposed port: 443) - A reverse proxy is a server that sits between clients and servers, receiving incoming requests from clients and forwarding them to the appropriate server. It can also terminate TLS (SSL) connections, which means it decrypts encrypted traffic from clients and encrypts it again when forwarding it to the server. NGINX is a reverse proxy in the sense that it forwards requests to the appropriate server, in our case it would be the WordPress server.
+- **WordPress**: PHP-FPM application server (internal port 9000) - PHP-FPM (FastCGI Process Manager) is a server-side application that handles PHP scripts and returns the result to the web server. It is a fast and efficient way to run PHP scripts.
+- **MariaDB**: Database server (internal port 3306) - MariaDB is a database server that stores data in a structured format. It is a fast and efficient way to store data.
+- **Network**: Custom Docker bridge network (`inception`) for inter-container communication - A bridge network is a virtual network that allows containers to communicate with each other. It is a fast and efficient way to communicate between containers.
+- **Volumes**: Persistent storage mounted to host directories - Volumes are a way to store data in a container. They are a fast and efficient way to store data.
 
 ## How It Works
 

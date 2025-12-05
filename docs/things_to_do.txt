@@ -1,0 +1,42 @@
+1. Check that the configurations files for nginx and wordpress are correct
+--> https://medium.com/@ssterdev/inception-guide-42-project-part-i-7e3af15eb671
+
+Next step will be to configure nginx and php so that they can communicate.
+We would need to copy the default server configuration file from the nginx container and the default config for the php service and make some minor modifications to it.
+
+Default config for PHP location: /etc/php/8.2/fpm/pool.d/www.conf
+Default config for NGINX location: /etc/nginx/sites-available/default
+While still having our containers running, we can open another terminal and copy these files from inside our containers using the command docker cp.
+
+docker cp wp-php:/etc/php/8.2/fpm/pool.d/www.conf ./requirements/wordpress/.
+docker cp nginx:/etc/nginx/sites-available/default ./requirements/nginx/.
+
+For the php default configuration file “www.conf” we only need to change a 
+single line (line 41). Instead of listening to the default “/run/php/php8.2-fpm.sock address,
+ we need to tell php that it needs to accept FastCGI request from address “wp-php:9000”, 
+ the localhost of our wordpress-php container at port 9000.
+
+ 2. Check also that the mariadb conf file is fine
+-> https://medium.com/@ssterdev/inception-42-project-part-ii-19a06962cf3b
+
+3. Custom website not generic website, change the script to display a basic webpage
+
+4. Check how to test database
+
+5.4. mariaDB check
+Open another terminal and keep the terminal with the compose running. On this other terminal, run the following command to enter in the mariadb container.
+
+docker exec -it mariadb /bin/bash
+Then run the command to enter in the mysql
+
+mysql -u your_user -p db_name 
+Then run the command to see the tables
+
+SHOW TABLES;
+If you see the tables, it means that all is ok. If you want to see the database, run the following command:
+
+SELECT * FROM table_name\G;
+And if you want to delete a row in a table, run the following command:
+
+DELETE FROM table_name WHERE column_name = some_value;
+After that, you can exit the mysql and the container and all your project work is done. Congratulations!
