@@ -3,3 +3,5 @@ find . -type f -not -path '*/\.*' -not -path '*/data/*' -not -name '*.md' -not -
 
 
 
+docker logs -f nginx 
+--> follow the logs of the nginx container live
