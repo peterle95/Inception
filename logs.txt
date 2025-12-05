@@ -1,14 +1,13 @@
-pmolzer@inception ~/inception (debian)> # Check MariaDB is now on port 3306 (not port 0)
-                                        docker logs mariadb 2>&1 | grep "port:"
-                                        # Should show: port: 3306
+pmolzer@inception ~/i/srcs (debian)> # Check MariaDB is now on port 3306 (not port 0)
+                                     docker logs mariadb 2>&1 | grep "port:"
+                                     # Should show: port: 3306
 
-                                        # Check WordPress connected and installed
-                                        docker logs wordpress
-                                        # Should show: "WordPress installation complete."
+                                     # Check WordPress connected and installed
+                                     docker logs wordpress
+                                     # Should show: "WordPress installation complete."
 
-                                        # Test the site
-                                        curl -k https://pmolzer.42.fr
-Waiting for MariaDB...
+                                     # Test the site
+                                     curl -k https://pmolzer.42.fr
 Waiting for MariaDB...
 Waiting for MariaDB...
 <html>
@@ -18,39 +17,37 @@ Waiting for MariaDB...
 <hr><center>nginx/1.22.1</center>
 </body>
 </html>
-pmolzer@inception ~/inception (debian)> docker logs mariadb 2>&1 | tail -30
-mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
-2025-12-05 14:11:30 0 [ERROR] Aborting
+pmolzer@inception ~/i/srcs (debian)> docker logs mariadb 2>&1 | tail -30
 Database already initialized.
 Starting MariaDB...
 mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
-2025-12-05 14:11:31 0 [ERROR] Aborting
+2025-12-05 14:15:47 0 [ERROR] Aborting
 Database already initialized.
 Starting MariaDB...
 mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
-2025-12-05 14:11:32 0 [ERROR] Aborting
+2025-12-05 14:15:48 0 [ERROR] Aborting
 Database already initialized.
 Starting MariaDB...
 mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
-2025-12-05 14:11:34 0 [ERROR] Aborting
+2025-12-05 14:15:48 0 [ERROR] Aborting
 Database already initialized.
 Starting MariaDB...
 mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
-2025-12-05 14:11:37 0 [ERROR] Aborting
+2025-12-05 14:15:49 0 [ERROR] Aborting
 Database already initialized.
 Starting MariaDB...
 mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
-2025-12-05 14:11:44 0 [ERROR] Aborting
+2025-12-05 14:15:50 0 [ERROR] Aborting
 Database already initialized.
 Starting MariaDB...
 mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
-2025-12-05 14:11:57 0 [ERROR] Aborting
+2025-12-05 14:15:52 0 [ERROR] Aborting
 Database already initialized.
 Starting MariaDB...
 mysqld: Please consult the Knowledge Base to find out how to run mysqld as root!
-2025-12-05 14:12:22 0 [ERROR] Aborting
-pmolzer@inception ~/inception (debian)> docker ps -a
-CONTAINER ID   IMAGE       COMMAND                  CREATED              STATUS                          PORTS                                     NAMES
-d4d0408ff0f4   wordpress   "/usr/local/bin/entr…"   About a minute ago   Up About a minute               9000/tcp                                  wordpress
-a5e7228fdbb1   mariadb     "/usr/local/bin/entr…"   About a minute ago   Restarting (1) 50 seconds ago                                             mariadb
-f954cfc8e068   nginx       "/usr/local/bin/entr…"   About a minute ago   Up About a minute               0.0.0.0:443->443/tcp, [::]:443->443/tcp   nginx
+2025-12-05 14:15:55 0 [ERROR] Aborting
+pmolzer@inception ~/i/srcs (debian)> docker ps -a
+CONTAINER ID   IMAGE       COMMAND                  CREATED          STATUS                         PORTS                                     NAMES
+10d51cee0236   wordpress   "/usr/local/bin/entr…"   24 seconds ago   Up 24 seconds                  9000/tcp                                  wordpress
+508137c4bf71   mariadb     "/usr/local/bin/entr…"   25 seconds ago   Restarting (1) 9 seconds ago                                             mariadb
+bbce8c700f1d   nginx       "/usr/local/bin/entr…"   25 seconds ago   Up 24 seconds                  0.0.0.0:443->443/tcp, [::]:443->443/tcp   nginx
