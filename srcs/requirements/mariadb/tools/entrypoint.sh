@@ -16,7 +16,7 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     # Initialize the database
     
     echo "Starting temporary MariaDB server..."
-    if /usr/bin/mysqld --user=mysql --bootstrap << EOF
+    if /usr/sbin/mysqld --user=mysql --bootstrap << EOF
 USE mysql;
 FLUSH PRIVILEGES;
 

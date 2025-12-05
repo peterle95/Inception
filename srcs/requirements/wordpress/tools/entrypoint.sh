@@ -70,7 +70,7 @@ if [ ! -f wp-config.php ]; then
     # Ensure permissions are correct
     echo "Setting permissions..."
     chmod -R 755 /var/www/html
-    chown -R nobody:nobody /var/www/html
+    chown -R www-data:www-data /var/www/html
 else
     echo "WordPress is already installed."
 fi
