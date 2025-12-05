@@ -1,5 +1,21 @@
-pmolzer@inception ~/inception (debian)> docker exec mariadb mysql -u root -e "SELECT User, Host FROM mysql.user;"
-User    Host
-mariadb.sys     localhost
-mysql   localhost
-root    localhost
+pmolzer@inception ~/inception (debian)> docker logs mariadb 2>&1 | tail -20
+2025-12-05 14:28:11 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-05 14:28:11 0 [Note] InnoDB: log sequence number 46980; transaction id 14
+2025-12-05 14:28:11 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-05 14:28:11 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-05 14:28:11 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-05 14:28:11 0 [Note] InnoDB: Buffer pool(s) load completed at 251205 14:28:11
+2025-12-05 14:28:11 0 [Note] Server socket created on IP: '0.0.0.0', port: '3306'.
+2025-12-05 14:28:11 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 3306  Debian 12
+2025-12-05 14:28:13 3 [Warning] Aborted connection 3 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:15 4 [Warning] Aborted connection 4 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:17 5 [Warning] Aborted connection 5 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:19 6 [Warning] Aborted connection 6 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:21 7 [Warning] Aborted connection 7 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:23 8 [Warning] Aborted connection 8 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:25 9 [Warning] Aborted connection 9 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:27 10 [Warning] Aborted connection 10 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:29 11 [Warning] Aborted connection 11 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:31 12 [Warning] Aborted connection 12 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+2025-12-05 14:28:33 13 [Warning] Aborted connection 13 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
