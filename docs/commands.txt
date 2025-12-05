@@ -5,3 +5,21 @@ find . -type f -not -path '*/\.*' -not -path '*/data/*' -not -name '*.md' -not -
 
 docker logs -f nginx 
 --> follow the logs of the nginx container live
+
+docker exec -it <container_name> /bin/bash
+--> enter the container
+
+docker exec -it mariadb mysql -u root -p
+--> enter the mariadb container and log in as root
+
+# MariaDB commands (first you need to log in as root via docker exec -it mariadb mysql -u root -p)
+SHOW DATABASES;
+USE wordpress;
+SHOW TABLES;
+SELECT * FROM wp_users;
+
+# WordPress commands 
+docker exec -it wordpress wp --allow-root user list
+docker exec -it wordpress wp --allow-root post list
+docker exec -it wordpress wp --allow-root comment list
+
