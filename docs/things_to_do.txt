@@ -40,3 +40,7 @@ And if you want to delete a row in a table, run the following command:
 
 DELETE FROM table_name WHERE column_name = some_value;
 After that, you can exit the mysql and the container and all your project work is done. Congratulations!
+
+6. Example for static and dynamic file for NGINX
+
+7. Check the URL when logging in with normal user

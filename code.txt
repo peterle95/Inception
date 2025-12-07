@@ -27,7 +27,7 @@ clean: down # clean system
 
 fclean: clean # fully clean system
 	@echo "Fully cleaning system..."
-	docker run --rm -v /home/pmolzer/data:/data alpine rm -rf /data/mariadb /data/wordpress
+	docker run --rm -v /home/pmolzer/data:/data debian:bookworm-slim rm -rf /data/mariadb /data/wordpress
 	docker volume rm srcs_mariadb srcs_wordpress || true
 
 re: fclean all # rebuild from scratch
@@ -37,203 +37,13 @@ re: fclean all # rebuild from scratch
 	docker compose -f srcs/docker-compose.yml up -d
 
 .PHONY: all build up down clean fclean re
-=== ./docs/things_to_do.txt ===
-1. Check that the configurations files for nginx and wordpress are correct
---> https://medium.com/@ssterdev/inception-guide-42-project-part-i-7e3af15eb671
-
-Next step will be to configure nginx and php so that they can communicate.
-We would need to copy the default server configuration file from the nginx container and the default config for the php service and make some minor modifications to it.
-
-Default config for PHP location: /etc/php/8.2/fpm/pool.d/www.conf
-Default config for NGINX location: /etc/nginx/sites-available/default
-While still having our containers running, we can open another terminal and copy these files from inside our containers using the command docker cp.
-
-docker cp wp-php:/etc/php/8.2/fpm/pool.d/www.conf ./requirements/wordpress/.
-docker cp nginx:/etc/nginx/sites-available/default ./requirements/nginx/.
-
-For the php default configuration file “www.conf” we only need to change a 
-single line (line 41). Instead of listening to the default “/run/php/php8.2-fpm.sock address,
- we need to tell php that it needs to accept FastCGI request from address “wp-php:9000”, 
- the localhost of our wordpress-php container at port 9000.
-
- 2. Check also that the mariadb conf file is fine
--> https://medium.com/@ssterdev/inception-42-project-part-ii-19a06962cf3b
-
-3. Custom website not generic website, change the script to display a basic webpage
-
-4. Check how to test database
-
-5.4. mariaDB check
-Open another terminal and keep the terminal with the compose running. On this other terminal, run the following command to enter in the mariadb container.
-
-docker exec -it mariadb /bin/bash
-Then run the command to enter in the mysql
-
-mysql -u your_user -p db_name 
-Then run the command to see the tables
-
-SHOW TABLES;
-If you see the tables, it means that all is ok. If you want to see the database, run the following command:
-
-SELECT * FROM table_name\G;
-And if you want to delete a row in a table, run the following command:
-
-DELETE FROM table_name WHERE column_name = some_value;
-After that, you can exit the mysql and the container and all your project work is done. Congratulations!
-=== ./docs/subject.txt ===
-Mandatory part
-This project involves setting up a small infrastructure composed of different services un￾der specific rules. The whole project has to be done in a virtual machine. You must use
-Docker Compose.
-Each Docker image must have the same name as its corresponding service.
-Each service has to run in a dedicated container.
-For performance reasons, the containers must be built from either the penultimate stable
-version of Alpine or Debian. The choice is yours.
-You also have to write your own Dockerfiles, one per service. The Dockerfiles must
-be called in your docker-compose.yml by your Makefile.
-This means you must build the Docker images for your project yourself. It is then forbid￾den to pull ready-made Docker images or use services such as DockerHub (Alpine/Debian
-being excluded from this rule).
-You then have to set up:
-• A Docker container that contains NGINX with TLSv1.2 or TLSv1.3 only.
-• A Docker container that contains WordPress with php-fpm (it must be installed
-and configured) only, without nginx.
-• A Docker container that contains only MariaDB, without nginx.
-• A volume that contains your WordPress database.
-• A second volume that contains your WordPress website files.
-• A docker-network that establishes the connection between your containers.
-Your containers must restart automatically in case of a crash.
-
-A Docker container is not a virtual machine. Thus, it is not
-recommended to use any hacky patches based on ’tail -f’ and similar
-methods when trying to run it. Read about how daemons work and
-whether it’s a good idea to use them or not.
-
-Of course, using network: host or --link or links: is forbidden.
-The network line must be present in your docker-compose.yml file.
-Your containers must not be started with a command running an
-infinite loop. Thus, this also applies to any command used as
-entrypoint, or used in entrypoint scripts. The following are a
-few prohibited hacky patches: tail -f, bash, sleep infinity, while
-true.
-Read about PID 1 and the best practices for writing Dockerfiles.
-• In your WordPress database, there must be two users, one of them being the admin￾istrator. The administrator’s username must not contain ’admin’, ’Admin’, ’admin￾istrator’, or ’Administrator’ (e.g., admin, administrator, Administrator, admin-123,
-etc.).
-Your volumes will be available in the /home/login/data folder of the
-host machine using Docker. Of course, you have to replace the login
-with yours.
-To simplify the process, you must configure your domain name to point to your local
-IP address.
-This domain name must be login.42.fr. Again, you must use your own login.
-For example, if your login is ’wil’, wil.42.fr will redirect to the IP address pointing to
-Wil’s website.
-The latest tag is prohibited.
-Passwords must not be present in your Dockerfiles.
-The use of environment variables is mandatory.
-It is also strongly recommended to use a .env file to store
-environment variables and to use the Docker secrets to store any
-confidential information.
-Your NGINX container must be the sole entry point into your
-infrastructure, accessible only via port 443, using the TLSv1.2
-or TLSv1.3 protocol.
-
-Below is an example of the expected directory structure:
-$> ls -alR
-total XX
-drwxrwxr-x 3 wil wil 4096 avril 42 20:42 .
-drwxrwxrwt 17 wil wil 4096 avril 42 20:42 ..
--rw-rw-r-- 1 wil wil XXXX avril 42 20:42 Makefile
-drwxrwxr-x 3 wil wil 4096 avril 42 20:42 secrets
-drwxrwxr-x 3 wil wil 4096 avril 42 20:42 srcs
-./secrets:
-total XX
-drwxrwxr-x 2 wil wil 4096 avril 42 20:42 .
-drwxrwxr-x 6 wil wil 4096 avril 42 20:42 ..
--rw-r--r-- 1 wil wil XXXX avril 42 20:42 credentials.txt
--rw-r--r-- 1 wil wil XXXX avril 42 20:42 db_password.txt
--rw-r--r-- 1 wil wil XXXX avril 42 20:42 db_root_password.txt
-./srcs:
-total XX
-drwxrwxr-x 3 wil wil 4096 avril 42 20:42 .
-drwxrwxr-x 3 wil wil 4096 avril 42 20:42 ..
--rw-rw-r-- 1 wil wil XXXX avril 42 20:42 docker-compose.yml
--rw-rw-r-- 1 wil wil XXXX avril 42 20:42 .env
-drwxrwxr-x 5 wil wil 4096 avril 42 20:42 requirements
-./srcs/requirements:
-total XX
-drwxrwxr-x 5 wil wil 4096 avril 42 20:42 .
-drwxrwxr-x 3 wil wil 4096 avril 42 20:42 ..
-drwxrwxr-x 4 wil wil 4096 avril 42 20:42 bonus
-drwxrwxr-x 4 wil wil 4096 avril 42 20:42 mariadb
-drwxrwxr-x 4 wil wil 4096 avril 42 20:42 nginx
-drwxrwxr-x 4 wil wil 4096 avril 42 20:42 tools
-drwxrwxr-x 4 wil wil 4096 avril 42 20:42 wordpress
-./srcs/requirements/mariadb:
-total XX
-drwxrwxr-x 4 wil wil 4096 avril 42 20:45 .
-drwxrwxr-x 5 wil wil 4096 avril 42 20:42 ..
-drwxrwxr-x 2 wil wil 4096 avril 42 20:42 conf
--rw-rw-r-- 1 wil wil XXXX avril 42 20:42 Dockerfile
--rw-rw-r-- 1 wil wil XXXX avril 42 20:42 .dockerignore
-drwxrwxr-x 2 wil wil 4096 avril 42 20:42 tools
-[...]
-./srcs/requirements/nginx:
-total XX
-drwxrwxr-x 4 wil wil 4096 avril 42 20:42 .
-drwxrwxr-x 5 wil wil 4096 avril 42 20:42 ..
-drwxrwxr-x 2 wil wil 4096 avril 42 20:42 conf
--rw-rw-r-- 1 wil wil XXXX avril 42 20:42 Dockerfile
--rw-rw-r-- 1 wil wil XXXX avril 42 20:42 .dockerignore
-drwxrwxr-x 2 wil wil 4096 avril 42 20:42 tools
-[...]
-$> cat srcs/.env
-DOMAIN_NAME=wil.42.fr
-# MYSQL SETUP
-MYSQL_USER=XXXXXXXXXXXX
-[...]
-$>
-For obvious security reasons, any credentials, API keys, passwords,
-etc., must be saved locally in various ways / files and ignored by
-git. Publicly stored credentials will lead you directly to a failure
-of the project.
-
-You can store your variables (as a domain name) in an environment
-variable file like .env
-=== ./docs/commands.txt ===
-find . -type f -not -path '*/\.*' -not -path '*/data/*' -not -name '*.md' -not -name 'code.txt' \  
-                                                -exec sh -c 'echo "=== $1 ==="; cat "$1"; echo ""' _ {} \; > code.txt
-
-
-
-docker logs -f nginx 
---> follow the logs of the nginx container live
 === ./secrets/db_password.txt ===
-wpverysecretpassword123
+wpSecurePassword123!
 === ./secrets/credentials.txt ===
 username=pmolzer
-password=pmolzerverysecretpassword123
+password=wpAdminSecure123!
 === ./secrets/db_root_password.txt ===
-rootverysecretpassword123
-=== ./logs.txt ===
-pmolzer@inception ~/inception (debian)> docker logs mariadb 2>&1 | tail -20
-2025-12-05 14:28:11 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
-2025-12-05 14:28:11 0 [Note] InnoDB: log sequence number 46980; transaction id 14
-2025-12-05 14:28:11 0 [Note] Plugin 'FEEDBACK' is disabled.
-2025-12-05 14:28:11 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
-2025-12-05 14:28:11 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
-2025-12-05 14:28:11 0 [Note] InnoDB: Buffer pool(s) load completed at 251205 14:28:11
-2025-12-05 14:28:11 0 [Note] Server socket created on IP: '0.0.0.0', port: '3306'.
-2025-12-05 14:28:11 0 [Note] mysqld: ready for connections.
-Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 3306  Debian 12
-2025-12-05 14:28:13 3 [Warning] Aborted connection 3 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:15 4 [Warning] Aborted connection 4 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:17 5 [Warning] Aborted connection 5 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:19 6 [Warning] Aborted connection 6 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:21 7 [Warning] Aborted connection 7 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:23 8 [Warning] Aborted connection 8 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:25 9 [Warning] Aborted connection 9 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:27 10 [Warning] Aborted connection 10 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:29 11 [Warning] Aborted connection 11 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:31 12 [Warning] Aborted connection 12 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
-2025-12-05 14:28:33 13 [Warning] Aborted connection 13 to db: 'unconnected' user: 'unauthenticated' host: 'wordpress.srcs_inception' (This connection closed normally without authentication)
+rootSecurePassword123!
 === ./srcs/docker-compose.yml ===
 version: '3.8'
 
@@ -457,6 +267,17 @@ CMD ["mysqld", "--user=mysql"]
 #!/bin/bash
 set -e
 
+# Read secrets from Docker secrets files (with fallback to env vars)
+if [ -f /run/secrets/db_password ]; then
+    MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+    export MYSQL_PASSWORD
+fi
+
+if [ -f /run/secrets/db_root_password ]; then
+    MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+    export MYSQL_ROOT_PASSWORD
+fi
+
 # Fix ownership of data directory (important for mounted volumes)
 chown -R mysql:mysql /var/lib/mysql
 chown -R mysql:mysql /run/mysqld
@@ -484,6 +305,9 @@ done
 # Create database and user (idempotent - uses IF NOT EXISTS)
 echo "Setting up database and user..."
 mysql -u root <<EOF
+-- Set root password (fixes issue where root accepts any password)
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
@@ -499,64 +323,6 @@ wait "$pid" 2>/dev/null || true
 
 echo "Starting MariaDB..."
 exec "$@"
-=== ./srcs/requirements/mariadb/TESTING.MD ===
-# Testing MariaDB
-
-## 1. Verify Database Connection (Terminal)
-
-The database should be accessible from the WordPress container, but not from the host.
-
-**Command:**
-```bash
-# Check if mariadb is running
-docker ps | grep mariadb
-
-# Try to connect from the host (Should FAIL)
-mysql -h 127.0.0.1 -P 3306 -u pmolzer -p
-# Expected: Connection refused or timeout (since port 3306 is not mapped to host)
-```
-
-## 2. Verify Data Persistence (Terminal)
-
-Data should persist even if the container is removed.
-
-**Command:**
-```bash
-# 1. Create a test table
-docker exec -it mariadb mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "USE $MYSQL_DATABASE; CREATE TABLE test_table (id INT); INSERT INTO test_table VALUES (1);"
-
-# 2. Verify data exists
-docker exec -it mariadb mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "USE $MYSQL_DATABASE; SELECT * FROM test_table;"
-# Expected Output:
-# +------+
-# | id   |
-# +------+
-# |    1 |
-# +------+
-
-# 3. Remove containers
-make down
-
-# 4. Restart containers
-make up
-
-# 5. Verify data still exists
-docker exec -it mariadb mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "USE $MYSQL_DATABASE; SELECT * FROM test_table;"
-# Expected Output: Same as above (id: 1)
-```
-
-## 3. Verify User Creation (Terminal)
-
-The initialization script should have created the specific user and database.
-
-**Command:**
-```bash
-docker exec -it mariadb mariadb -u root -p$MYSQL_ROOT_PASSWORD -e "SELECT User, Host FROM mysql.user;"
-```
-
-**Expected Result:**
-You should see your custom user (e.g., `pmolzer`) and `root` in the list.
-
 === ./srcs/requirements/wordpress/conf/custom.ini ===
 ; Custom PHP configuration for WordPress
 ; This file overrides default PHP settings for better WordPress performance
@@ -648,6 +414,18 @@ CMD ["php-fpm8.2", "-F"]
 #!/bin/bash
 set -e
 
+# Read confidential information from Docker secrets
+if [ -f /run/secrets/db_password ]; then
+    MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+    export MYSQL_PASSWORD
+fi
+
+if [ -f /run/secrets/credentials ]; then
+    WP_ADMIN_USER=$(grep '^username=' /run/secrets/credentials | cut -d'=' -f2)
+    WP_ADMIN_PASSWORD=$(grep '^password=' /run/secrets/credentials | cut -d'=' -f2)
+    export WP_ADMIN_USER WP_ADMIN_PASSWORD
+fi
+
 # Ensure correct permissions
 chown -R www-data:www-data /var/www/html
 
@@ -699,66 +477,6 @@ fi
 
 echo "Starting PHP-FPM..."
 exec "$@"
-=== ./srcs/requirements/wordpress/TESTING.MD ===
-# Testing WordPress
-
-## 1. Verify Installation (Browser)
-
-Navigate to `https://pmolzer.42.fr`.
-
-**Expected Result:**
-- You should see the WordPress homepage (not the installation wizard).
-- The site title should match what you set in `.env` (e.g., "Inception").
-
-## 2. Verify Admin Login (Browser)
-
-Navigate to `https://pmolzer.42.fr/wp-admin`.
-
-**Credentials:**
-- Use the admin username and password from your `.env` file.
-
-**Expected Result:**
-- Successful login to the WordPress Dashboard.
-
-## 3. Verify Users (Browser/Terminal)
-
-**Browser:**
-- Go to "Users" in the dashboard.
-- You should see two users: the administrator and the second user (author/editor).
-
-**Terminal:**
-```bash
-# List users via WP-CLI
-docker exec -it wordpress wp user list --allow-root
-```
-**Expected Result:**
-- A table listing the users, their roles, and emails.
-
-## 4. Verify PHP-FPM (Terminal)
-
-Ensure PHP-FPM is running and handling requests.
-
-**Command:**
-```bash
-docker logs wordpress
-```
-
-**Expected Result:**
-- You should see logs indicating PHP-FPM started (e.g., `ready to handle connections`).
-- You might see access logs if you've visited the site.
-
-## 5. Verify Database Connection (Terminal)
-
-If the site loads, the database connection is working. If you see "Error establishing a database connection", check the logs.
-
-**Command:**
-```bash
-docker exec -it wordpress wp db check --allow-root
-```
-
-**Expected Result:**
-- `Success: The database is available.`
-
 === ./srcs/requirements/nginx/conf/nginx.conf ===
 server {
     listen 443 ssl;
@@ -822,57 +540,12 @@ if [ ! -f /etc/nginx/ssl/inception.crt ]; then
         -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=Inception/CN=pmolzer.42.fr"
 fi
 
+# Wait for WordPress to be available
+echo "Waiting for WordPress..."
+while ! getent hosts wordpress > /dev/null 2>&1; do
+    sleep 1
+done
+echo "WordPress is available."
+
 echo "Starting NGINX..."
 exec "$@"
-=== ./srcs/requirements/nginx/TESTING.MD ===
-# Testing NGINX
-
-## 1. Verify TLS Version (Terminal)
-
-The subject requires TLSv1.2 or TLSv1.3 only.
-
-**Command:**
-```bash
-# Test TLS 1.2 (Should succeed)
-openssl s_client -connect pmolzer.42.fr:443 -tls1_2
-
-# Test TLS 1.3 (Should succeed)
-openssl s_client -connect pmolzer.42.fr:443 -tls1_3
-
-# Test TLS 1.0 (Should fail)
-openssl s_client -connect pmolzer.42.fr:443 -tls1
-
-# Test TLS 1.1 (Should fail)
-openssl s_client -connect pmolzer.42.fr:443 -tls1_1
-```
-
-**Expected Result:**
-- TLS 1.2/1.3 commands should show the certificate chain and handshake details.
-- TLS 1.0/1.1 commands should fail with a handshake error or "no protocols available".
-
-## 2. Verify Port 443 Only (Terminal)
-
-Only port 443 should be exposed to the host.
-
-**Command:**
-```bash
-docker ps
-```
-
-**Expected Result:**
-Check the `PORTS` column for the `nginx` container. It should only show `0.0.0.0:443->443/tcp`. It should **not** show port 80.
-
-## 3. Verify Certificate (Browser)
-
-1.  Open `https://pmolzer.42.fr` in your browser.
-2.  Click the "Not Secure" or lock icon in the address bar.
-3.  View the certificate details.
-4.  **Expected Result**:
-    - Issued to: `pmolzer.42.fr` (or similar).
-    - Issued by: `pmolzer.42.fr` (Self-signed).
-    - Protocol: TLS 1.2 or 1.3.
-
-## 4. Verify HTTP Redirect (Optional but good practice)
-
-If you try to access `http://pmolzer.42.fr` (port 80), it should either fail (connection refused) or redirect to HTTPS, depending on your implementation. The subject strictly says "accessible only via port 443", so connection refused on port 80 is the most compliant behavior.
-
