@@ -26,7 +26,7 @@ services:
       - mariadb:/var/lib/mysql
     restart: always
     env_file: .env
-    secrets:
+    secrets: # we need to specify this in the docker-compose because docker-compose does not support secrets in the env_file
       - db_root_password
       - db_password
 
@@ -55,7 +55,7 @@ networks: # the network is used to connect the containers
 volumes:
   mariadb:
     driver: local
-    driver_opts:
+    driver_opts: # this means that the volume will be mounted as a bind mount, which means that the volume will be mounted on the host machine
       type: none
       o: bind
       device: /home/pmolzer/data/mariadb

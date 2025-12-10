@@ -1,229 +1,143 @@
-# WordPress Service
+# WordPress Container Documentation
 
-This container runs WordPress with PHP-FPM, serving dynamic content for the Inception project.
+## 1. Container Overview
 
-## Table of Contents
+### Purpose and Role
+The WordPress container hosts the application logic for the Inception project. It runs the PHP-FPM (FastCGI Process Manager) server to process PHP requests forwarded by Nginx and communicates with the MariaDB database to retrieve and store content.
 
-- [Overview](#overview)
-- [Configuration](#configuration)
-- [Dockerfile Breakdown](#dockerfile-breakdown)
-- [PHP Configuration Files](#php-configuration-files)
-- [How It Works](#how-it-works)
-- [Integration with Other Services](#integration-with-other-services)
+### Key Responsibilities
+- **Application Logic**: Executes WordPress PHP code.
+- **Content Management**: Handles content creation, modification, and retrieval.
+- **Database Interaction**: Connects to MariaDB to persist data.
+- **CLI Management**: Provides WP-CLI for command-line administration.
 
-## Overview
+### Relationship to Other Services
+- **Nginx**: Receives requests from Nginx on port 9000.
+- **MariaDB**: Connects to the mariadb container on port 3306.
+- **Volumes**: Mounts the shared wordpress volume to store core files and uploads.
 
-WordPress is a popular content management system (CMS) written in PHP. In this project:
-- WordPress runs with **PHP-FPM** (FastCGI Process Manager)
-- Serves dynamic content on port **9000**
-- Connects to **MariaDB** for data storage
-- Receives requests from **NGINX** via FastCGI protocol
+## 2. Technical Specifications
 
-## Configuration
+### Software Packages
+- **OS Base**: Debian Bookworm (Stable)
+- **Runtime**: PHP 8.2 (FPM)
+- **Extensions**: php8.2-mysqli, php8.2-mbstring, php8.2-xml, php8.2-curl
+- **Tools**: 
+  - curl: For downloading resources.
+  - wp-cli: Command-line interface for WordPress management.
+  - mariadb-client: For database connectivity checks.
 
-- **Base Image**: Alpine Linux 3.19
-- **PHP Version**: PHP 8.1 with FPM
-- **Port**: 9000 (FastCGI, internal network only)
-- **Working Directory**: `/var/www/html`
-- **Tool**: WP-CLI for WordPress management
+### Dependencies
+- **Database**: Requires a running MariaDB instance.
+- **Secrets**: Requires db_password and credentials secrets.
+- **Volume**: Requires read/write access to /var/www/html.
 
-### Environment Variables
+## 3. Configuration
 
-From `.env` file:
-- `DOMAIN_NAME` - WordPress site URL
-- `MYSQL_DATABASE` - Database name
-- `MYSQL_USER` - Database user
-- `WP_ADMIN_USER` - WordPress admin username
-- `WP_ADMIN_EMAIL` - WordPress admin email
-- `WP_USER` - WordPress normal user username
-- `WP_USER_EMAIL` - WordPress normal user email
+### Configuration Files
+- **PHP-FPM Pool**: /etc/php/8.2/fpm/pool.d/www.conf
+  - Configures the pool to listen on port 9000.
+  - Sets user/group to www-data.
+  - Configures dynamic process management.
+- **PHP Custom Settings**: /etc/php/8.2/fpm/conf.d/99-custom.ini
+  - memory_limit: 512M
+  - upload_max_filesize: 64M
+  - post_max_size: 64M
 
-From Docker secrets:
-- `MYSQL_PASSWORD` - Database password
-- `WP_ADMIN_PASSWORD` - WordPress admin password
-- `WP_USER_PASSWORD` - WordPress normal user password
+### Environment Variables & Secrets
+- **Secrets**:
+  - db_password: Database user password.
+  - credentials: Contains admin username and password for WordPress setup.
+- **Environment Variables**:
+  - MYSQL_DATABASE, MYSQL_USER: Database connection details.
+  - DOMAIN_NAME: The site URL (e.g., pmolzer.42.fr).
+  - WP_USER, WP_PASSWORD, WP_ADMIN_EMAIL: Details for initial user creation.
 
-## Dockerfile Breakdown
+### Security Considerations
+- **Least Privilege**: Runs as www-data user (configured in pool), not root.
+- **Secrets**: Credentials are read from protected files, not environment variables where possible.
+- **Permissions**: Entrypoint script enforces correct ownership (www-data:www-data) on web directories.
 
-```dockerfile
-FROM alpine:3.19
-```
-- **Base Image**: Alpine Linux 3.19 (minimal, lightweight)
-- Benefits: Small size, security-focused
+## 4. Dockerfile Analysis
 
-```dockerfile
-RUN apk update && apk add --no-cache \
-    php81 \
-    php81-fpm \
-    php81-mysqli \
-    php81-phar \
-    php81-iconv \
-    php81-mbstring \
-    php81-openssl \
+`dockerfile
+FROM debian:bookworm
+
+# Install PHP and dependencies
+RUN apt-get update && apt-get install -y \
+    php8.2 \
+    php8.2-fpm \
+    php8.2-mysqli \
+    # ... other extensions
     curl \
-    mariadb-client
-```
-- **PHP packages**:
-  - `php81` - PHP 8.1 runtime
-  - `php81-fpm` - FastCGI Process Manager
-  - `php81-mysqli` - MySQL/MariaDB extension for database connectivity
-  - `php81-phar` - PHP Archive support (needed for WP-CLI)
-  - `php81-iconv`, `php81-mbstring` - Character encoding support
-  - `php81-openssl` - SSL/TLS support
-- **Tools**:
-  - `curl` - For downloading WP-CLI
-  - `mariadb-client` - For testing database connectivity
+    mariadb-client \
+    && rm -rf /var/lib/apt/lists/*
 
-```dockerfile
-RUN ln -s /usr/bin/php81 /usr/bin/php
-```
-- **Symlink**: Creates `php` command pointing to `php81`
-- Allows scripts to use `#!/usr/bin/env php`
-
-```dockerfile
+# Install WP-CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp
-```
-- **WP-CLI Installation**: WordPress command-line tool
-- Used in entrypoint for automated WordPress setup
 
-```dockerfile
-COPY conf/www.conf /etc/php81/php-fpm.d/www.conf
-COPY conf/custom.ini /etc/php81/conf.d/custom.ini
-```
-- **Custom PHP configuration files**:
-  - `www.conf` - PHP-FPM pool configuration
-  - `custom.ini` - PHP runtime settings
-- **Benefits**: Explicit, version-controlled configuration (no runtime sed modifications)
+# Copy Configs
+COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf
+COPY conf/custom.ini /etc/php/8.2/fpm/conf.d/99-custom.ini
 
-```dockerfile
+# Setup Entrypoint
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
-```
-- **Entrypoint script**: Handles WordPress installation and configuration
 
-```dockerfile
+# Directory Setup
+RUN mkdir -p /var/www/html && \
+    chown -R www-data:www-data /var/www/html && \
+    mkdir -p /run/php && \
+    chown -R www-data:www-data /run/php
+
 WORKDIR /var/www/html
 EXPOSE 9000
-```
-- **Working directory**: WordPress installation location
-- **Port 9000**: PHP-FPM listens for FastCGI connections from NGINX
-
-```dockerfile
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["php-fpm81", "-F"]
-```
-- **Entrypoint**: Runs initialization (downloads and configures WordPress)
-- **CMD**: Starts PHP-FPM in foreground mode (`-F`)
+CMD ["php-fpm8.2", "-F"]
+`
 
-## PHP Configuration Files
+- **Stack**: Uses the latest stable PHP 8.2 stack.
+- **WP-CLI**: Manually installs WP-CLI to facilitate automated WordPress installation in the entrypoint.
+- **Configuration**: Overrides default PHP-FPM settings to listen on a network port instead of a socket.
+- **Runtime Setup**: Ensures /run/php exists, which is required for PHP-FPM to start.
 
-### www.conf - PHP-FPM Pool Configuration
+## 5. Operational Details
 
-File: [conf/www.conf](file:///\\wsl.localhost\Ubuntu\home\ubuntu\Inception-final\srcs\requirements\wordpress\conf\www.conf)
+### Expected Runtime Behavior
+1. **Wait for DB**: Entrypoint loops and waits until it can connect to the MariaDB host.
+2. **Install/Configure**: 
+   - Checks if wp-config.php exists.
+   - If not, downloads WordPress core.
+   - Generates config connecting to the DB.
+   - Installs WordPress (creates tables, admin user).
+   - Creates an additional author user.
+3. **Start Server**: Starts php-fpm8.2 in foreground mode (-F).
 
-**Key settings**:
-- `listen = 9000` - Listen on all interfaces (Docker networking)
-- `user = nobody` - Run as non-root user
-- `pm = dynamic` - Dynamic process management
-- `pm.max_children = 5` - Maximum worker processes
-- `pm.start_servers = 2` - Initial workers on startup
-- `request_terminate_timeout = 300` - 5-minute timeout for long requests
+### Logging
+- **PHP Logs**: Directed to /var/log/php8.2-fpm.log (configured in www.conf).
+- **Access/Error**: Configured to log errors to stderr (log_errors = on).
 
-**Why?** Default configuration binds to `127.0.0.1:9000`, which doesn't work for Docker container-to-container communication.
+### Common Troubleshooting
+- **Database Connection Error**: If WordPress cannot connect to MariaDB, check credentials and ensure MariaDB container is healthy.
+- **Permissions**: If plugins/uploads fail, check ownership of /var/www/html (should be www-data).
+- **White Screen**: Check PHP error logs.
 
-### custom.ini - PHP Runtime Configuration
+## 6. Architectural Context
 
-File: [conf/custom.ini](file:///\\wsl.localhost\Ubuntu\home\ubuntu\Inception-final\srcs\requirements\wordpress\conf\custom.ini)
+### Diagram
+`mermaid
+graph TD
+    Nginx[Nginx] -- FastCGI:9000 --> WP[WordPress]
+    WP -- TCP:3306 --> DB[MariaDB]
+    WP -- Reads/Writes --> Volume[WordPress Volume]
+`
 
-**Key settings**:
-- `memory_limit = 512M` - Increased from default 128M (WordPress needs more memory)
-- `max_execution_time = 300` - 5 minutes for long operations
-- `post_max_size = 64M` - Large POST data support
-- `upload_max_filesize = 64M` - Large file uploads (images, media)
-- `max_file_uploads = 20` - Multiple file uploads
-- `display_errors = Off` - Security (don't expose errors to users)
-- `log_errors = On` - Log errors for debugging
+### Communication
+- **Inbound**: Accepts FastCGI connections on TCP 9000 from Nginx.
+- **Outbound**: Initiates TCP connections to MariaDB on port 3306.
 
-**Benefits**: Optimized for WordPress performance and media handling.
-
-## How It Works
-
-### Startup Sequence
-
-1. **Container starts** → `entrypoint.sh` executed
-2. **Wait for MariaDB** → Ping database until ready
-3. **Download WordPress** → If not already installed
-4. **Configure WordPress**:
-   - Create `wp-config.php` with database credentials
-   - Set site URL
-   - Install WordPress core
-5. **Create users**:
-   - Admin user (from secrets)
-   - Normal user (from secrets)
-6. **Start PHP-FPM** → Listen on port 9000 for FastCGI requests
-
-### Request Flow
-
-```
-User Browser
-    ↓
-NGINX (443/HTTPS)
-    ↓ FastCGI
-PHP-FPM (9000)
-    ↓ Execute PHP
-WordPress
-    ↓ SQL Query
-MariaDB (3306)
-    ↓ Results
-WordPress
-    ↓ HTML
-NGINX
-    ↓ HTTPS
-User Browser
-```
-
-## Integration with Other Services
-
-### NGINX Connection
-
-NGINX communicates with WordPress via **FastCGI protocol**:
-
-```nginx
-# From nginx.conf
-location ~ \.php$ {
-    fastcgi_pass wordpress:9000;
-    fastcgi_index index.php;
-    include /etc/nginx/fastcgi_params;
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-}
-```
-
-- **DNS**: Docker resolves `wordpress` to container IP
-- **Port 9000**: PHP-FPM listening port
-- **FastCGI**: Binary protocol for efficient PHP execution
-
-### MariaDB Connection
-
-WordPress connects to MariaDB via **mysqli**:
-
-```php
-// In wp-config.php (generated by entrypoint)
-define('DB_NAME', 'wordpress');
-define('DB_USER', 'wpuser');
-define('DB_PASSWORD', '...');
-define('DB_HOST', 'mariadb:3306');
-```
-
-- **Host**: `mariadb` (Docker DNS)
-- **Port**: 3306 (standard MySQL/MariaDB port)
-- **Protocol**: MySQL wire protocol
-
----
-
-**Related Documentation**:
-- [Main Project README](file:///\\wsl.localhost\\Ubuntu\\home\\ubuntu\\Inception-final\\README.md)
-- [WordPress Testing Guide](file:///\\wsl.localhost\\Ubuntu\\home\\ubuntu\\Inception-final\\srcs\\requirements\\wordpress\\TESTING.MD)
-- [MariaDB Service README](file:///\\wsl.localhost\\Ubuntu\\home\\ubuntu\\Inception-final\\srcs\\requirements\\mariadb\\README.md)
-- [NGINX Service README](file:///\\wsl.localhost\\Ubuntu\\home\\ubuntu\\Inception-final\\srcs\\requirements\\nginx\\README.md)
+### Performance & Scaling
+- **PHP-FPM Tuning**: pm.max_children, pm.start_servers in www.conf control how many concurrent requests can be handled.
+- **Memory**: PHP memory limit is increased to 512M to handle resource-intensive themes or plugins.

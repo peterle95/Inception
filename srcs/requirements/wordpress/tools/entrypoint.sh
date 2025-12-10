@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# set -e is used to exit the script if a command fails
 set -e
 
 # Read confidential information from Docker secrets

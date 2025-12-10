@@ -44,3 +44,12 @@ After that, you can exit the mysql and the container and all your project work i
 6. Example for static and dynamic file for NGINX
 
 7. Check the URL when logging in with normal user
+
+8. Check that nginx is only using TLSv1.3
+-> openssl s_client -connect pmolzer.42.fr:443 -tls1_3
+**Expected:**
+- Command should succeed and show the certificate.
+
+-> openssl s_client -connect pmolzer.42.fr:443 -tls1
+**Expected:**
+- Command should fail with a handshake error.

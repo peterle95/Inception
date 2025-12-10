@@ -1,4 +1,5 @@
-To ensure that your NGINX server **only uses SSL/TLS** (and never falls back to unencrypted HTTP), and that it enforces **TLSv1.2 or TLSv1.3**, follow these steps:
+To ensure that your NGINX server **only uses SSL/TLS** (and never falls back to unencrypted HTTP), 
+and that it enforces **TLSv1.2 or TLSv1.3**, follow these steps:
 
 ---
 

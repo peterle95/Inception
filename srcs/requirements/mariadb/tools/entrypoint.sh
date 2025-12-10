@@ -2,10 +2,11 @@
 set -e
 
 # Read secrets from Docker secrets files (with fallback to env vars)
+# -f means if the file exists
 if [ -f /run/secrets/db_password ]; then
     MYSQL_PASSWORD=$(cat /run/secrets/db_password)
     export MYSQL_PASSWORD
-fi
+fi # fi means end of the if statement
 
 if [ -f /run/secrets/db_root_password ]; then
     MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
@@ -13,10 +14,12 @@ if [ -f /run/secrets/db_root_password ]; then
 fi
 
 # Fix ownership of data directory (important for mounted volumes)
+# chown gives permissions to users while chmod changes permissions to files
 chown -R mysql:mysql /var/lib/mysql
 chown -R mysql:mysql /run/mysqld
 
 # Check if the database needs to be initialized
+# "! -d" means if the directory does not exist 
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Initializing database..."
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
@@ -28,6 +31,9 @@ mysqld --user=mysql --skip-networking &
 pid="$!"
 
 # Wait for MariaDB to be ready
+# here we are waiting for the database to start
+# if it doesn't start in 30 seconds, the container will exit
+# if it starts, we will continue to the next step
 echo "Waiting for MariaDB to start..."
 for i in {1..30}; do
     if mysqladmin ping --silent 2>/dev/null; then
