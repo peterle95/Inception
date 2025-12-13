@@ -5,7 +5,9 @@ find . -type f -not -path '*/\.*' -not -path '*/data/*' -not -name '*.md' -not -
 
 
 
-
+--> clone in host in Evaluations folder
+--> in VM "su -" and then cd /media/sf_Evaluation
+--> then mv <folder_name> to /home/pmolzer
 
 
 
