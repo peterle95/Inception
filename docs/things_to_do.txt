@@ -53,3 +53,5 @@ After that, you can exit the mysql and the container and all your project work i
 -> openssl s_client -connect pmolzer.42.fr:443 -tls1
 **Expected:**
 - Command should fail with a handshake error.
+
+9. Try to host static files via nginx

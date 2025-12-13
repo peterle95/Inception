@@ -3,6 +3,23 @@ find . -type f -not -path '*/\.*' -not -path '*/data/*' -not -name '*.md' -not -
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 docker logs -f nginx 
 --> follow the logs of the nginx container live
 
@@ -11,6 +28,25 @@ docker exec -it <container_name> /bin/bash
 
 docker exec -it mariadb mysql -u root -p
 --> enter the mariadb container and log in as root
+
+docker exec mariadb ps aux
+# Output:
+USER PID COMMAND
+mysql 1  mysql --user=mysql
+
+docker exec wordpress ps aux
+# Output:
+USER       PID  COMMAND
+root       1    php-fpm: master process (/etc/php/8.2/fpm/php-fpm.conf)
+www-data   23   php-fpm: pool www
+www-data   24   php-fpm: pool www
+
+docker exec nginx ps aux
+# Output:
+USER       PID  COMMAND
+root       1    nginx: master process nginx -g daemon off;
+nginx      15   nginx: worker process
+nginx      16   nginx: worker process
 
 # MariaDB commands (first you need to log in as root via docker exec -it mariadb mysql -u root -p)
 SHOW DATABASES;
@@ -23,3 +59,24 @@ docker exec -it wordpress wp --allow-root user list
 docker exec -it wordpress wp --allow-root post list
 docker exec -it wordpress wp --allow-root comment list
 
+# msql commands
+docker exec -it mariadb mysql -u root -p
+# To connect to mysql remotely and force root to enter a password you can type in your VM shell :
+mysql -h 127.0.0.1 -u root -p (you will need to enter your password)
+
+# To connect to mysql remotely using your database user:
+mysql -h 127.0.0.1 -u llescure -p (you will need to enter your password)
+
+To show that the database is not empty:
+show databases;
+
+use wordpress (name of your dabatabse);
+
+show tables;
+
+
+
+# Check container processes
+docker top nginx
+docker top wordpress
+docker top mariadb

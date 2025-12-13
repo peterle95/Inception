@@ -14,10 +14,13 @@ fi
 
 # Wait for WordPress to be available
 echo "Waiting for WordPress..."
+# we need to use getent to wait for the container to be available
+# getent is a command that returns the entry for a name in the database
+# while ! getent hosts wordpress > /dev/null 2>&1; do basically means while the container is not available, wait
 while ! getent hosts wordpress > /dev/null 2>&1; do
     sleep 1
 done
 echo "WordPress is available."
 
 echo "Starting NGINX..."
-exec "$@"
+exec "$@" # replaces the shell process, ensuring that the container runs as PID 1

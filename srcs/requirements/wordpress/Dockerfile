@@ -38,7 +38,15 @@ EXPOSE 9000
 
 # ENTRYPOINT is used to run a command as the container starts
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-# CMD is used to run a command as the container starts
-# php-fpm8.2 is the command to run
-# PID 1 is the main process of the container, and it is achieved by using the -F flag
+#php-fpm8.2:
+#PHP FastCGI Process Manager version 8.2
+#Spawns worker processes to handle PHP execution
+#Listens on port 9000 for FastCGI requests from NGINX
+#Manages pool of PHP workers based on www.conf
+
+#-F flag:
+#Force foreground mode
+#Prevents php-fpm from daemonizing (going to background)
+#Keeps it as the main process
+#CRITICAL for Docker containers
 CMD ["php-fpm8.2", "-F"]

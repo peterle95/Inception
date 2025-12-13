@@ -33,3 +33,15 @@ ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # CMD instruction canbe used to provide the default arguments to an ENTRYPOINT
 CMD ["mysqld", "--user=mysql"]
+
+# mysqld:
+# The MariaDB server daemon
+# This is the actual database server process
+# Listens on port 3306
+# Handles all SQL queries
+
+# --user=mysql:
+# Run the server process as the mysql user (not root)
+# Security best practice
+# Even if compromised, attacker only has mysql user privileges
+# Matches file ownership (all DB files owned by mysql:mysql)
