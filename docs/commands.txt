@@ -7,7 +7,9 @@ find . -type f -not -path '*/\.*' -not -path '*/data/*' -not -name '*.md' -not -
 
 --> clone in host in Evaluations folder
 --> in VM "su -" and then cd /media/sf_Evaluation
+--> chown -R pmolzer:pmolzer /media/sf_Evaluation/inception_intra/
 --> then mv <folder_name> to /home/pmolzer
+
 
 
 
