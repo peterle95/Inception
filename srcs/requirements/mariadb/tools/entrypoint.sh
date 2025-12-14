@@ -16,29 +16,34 @@ fi
 chown -R mysql:mysql /var/lib/mysql
 chown -R mysql:mysql /run/mysqld
 
+# Marker file to track if initialization has completed
+INIT_MARKER="/var/lib/mysql/.inception_initialized"
+
 # Check if the database needs to be initialized
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Initializing database..."
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
 fi
 
-# Start MariaDB temporarily to set up users
-echo "Starting temporary MariaDB server for user setup..."
-mysqld --user=mysql --skip-networking &
-pid="$!"
+# Only run setup if database hasn't been initialized by this entrypoint
+if [ ! -f "$INIT_MARKER" ]; then
+    # Start MariaDB temporarily to set up users
+    echo "Starting temporary MariaDB server for user setup..."
+    mysqld --user=mysql --skip-networking &
+    pid="$!"
 
-# Wait for MariaDB to be ready
-echo "Waiting for MariaDB to start..."
-for i in {1..30}; do
-    if mysqladmin ping --silent 2>/dev/null; then
-        break
-    fi
-    sleep 1
-done
+    # Wait for MariaDB to be ready
+    echo "Waiting for MariaDB to start..."
+    for i in {1..30}; do
+        if mysqladmin ping --silent 2>/dev/null; then
+            break
+        fi
+        sleep 1
+    done
 
-# Create database and user (idempotent - uses IF NOT EXISTS)
-echo "Setting up database and user..."
-mysql -u root <<EOF
+    # Create database and user (idempotent - uses IF NOT EXISTS)
+    echo "Setting up database and user..."
+    mysql -u root <<EOF
 -- Set root password (fixes issue where root accepts any password)
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 
@@ -49,11 +54,18 @@ ALTER USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 FLUSH PRIVILEGES;
 EOF
 
-echo "Database setup complete."
+    echo "Database setup complete."
 
-# Stop the temporary server
-kill "$pid"
-wait "$pid" 2>/dev/null || true
+    # Stop the temporary server
+    kill "$pid"
+    wait "$pid" 2>/dev/null || true
+
+    # Create marker file in persistent volume to skip setup on restarts
+    touch "$INIT_MARKER"
+    echo "Initialization marker created."
+else
+    echo "Database already initialized, skipping setup."
+fi
 
 echo "Starting MariaDB..."
 exec "$@"
