@@ -1,17 +1,410 @@
-pmolzer@inception ~/inception (env)> docker exec -it mariadb mysql -u root -p
-Enter password: 
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MariaDB connection id is 17
-Server version: 10.11.14-MariaDB-0+deb12u2 Debian 12
-
-Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-MariaDB [(none)]> SELECT User, Host, plugin, authentication_string FROM mysql.user WHERE User = 'root';
-+------+-----------+-----------------------+-----------------------+
-| User | Host      | plugin                | authentication_string |
-+------+-----------+-----------------------+-----------------------+
-| root | localhost | mysql_native_password | invalid               |
-+------+-----------+-----------------------+-----------------------+
-1 row in set (0.002 sec)
+pmolzer@inception ~> docker ps
+CONTAINER ID   IMAGE       COMMAND                  CREATED         STATUS                         PORTS                                     NAMES
+6df6b8d7ce91   wordpress   "/usr/local/bin/entr…"   2 minutes ago   Up Less than a second          9000/tcp                                  wordpress
+193a880e8847   mariadb     "/usr/local/bin/entr…"   2 minutes ago   Restarting (1) 5 seconds ago                                             mariadb
+189d8c977980   nginx       "/usr/local/bin/entr…"   2 minutes ago   Up Less than a second          0.0.0.0:443->443/tcp, [::]:443->443/tcp   nginx
+pmolzer@inception ~> docker logs mariadb
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 10:46:26 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid TmgMDSzDi88i996T1bw1QD8oWW4= as process 11
+2025-12-14 10:46:26 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 10:46:26 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 10:46:26 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 10:46:26 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 10:46:26 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 10:46:26 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 10:46:26 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 10:46:26 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 10:46:26 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 10:46:26 0 [Note] InnoDB: End of log at LSN=46980
+2025-12-14 10:46:26 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 10:46:26 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 10:46:26 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 10:46:26 0 [Note] InnoDB: log sequence number 46980; transaction id 14
+2025-12-14 10:46:26 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 10:46:26 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 10:46:26 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 10:46:26 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 10:46:26
+2025-12-14 10:46:26 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+mysqld is alive
+Setting up database and user...
+Database setup complete.
+2025-12-14 10:46:27 0 [Note] mysqld (initiated by: unknown): Normal shutdown
+2025-12-14 10:46:27 0 [Note] InnoDB: FTS optimize thread exiting.
+2025-12-14 10:46:27 0 [Note] InnoDB: Starting shutdown...
+2025-12-14 10:46:27 0 [Note] InnoDB: Dumping buffer pool(s) to /var/lib/mysql/ib_buffer_pool
+2025-12-14 10:46:27 0 [Note] InnoDB: Buffer pool(s) dump completed at 251214 10:46:27
+2025-12-14 10:46:27 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 10:46:27 0 [Note] InnoDB: Shutdown completed; log sequence number 46980; transaction id 15
+2025-12-14 10:46:27 0 [Note] mysqld: Shutdown complete
+Starting MariaDB...
+2025-12-14 10:46:27 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid TmgMDSzDi88i996T1bw1QD8oWW4= as process 1
+2025-12-14 10:46:27 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 10:46:27 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 10:46:27 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 10:46:27 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 10:46:27 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 10:46:27 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 10:46:27 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 10:46:27 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 10:46:27 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 10:46:27 0 [Note] InnoDB: End of log at LSN=46980
+2025-12-14 10:46:27 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 10:46:27 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 10:46:27 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 10:46:27 0 [Note] InnoDB: log sequence number 46980; transaction id 14
+2025-12-14 10:46:27 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 10:46:27 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 10:46:27 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 10:46:27 0 [Note] Server socket created on IP: '0.0.0.0', port: '3306'.
+2025-12-14 10:46:27 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 10:46:27
+2025-12-14 10:46:27 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 3306  Debian 12
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 11:48:08 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid KI++DhSE622MpYkoxUvdTZ69RKM= as process 11
+2025-12-14 11:48:08 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 11:48:08 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 11:48:08 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 11:48:08 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 11:48:08 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 11:48:08 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 11:48:08 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 11:48:08 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 11:48:08 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 11:48:09 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 11:48:09 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 11:48:09 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 11:48:09 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 11:48:09 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 11:48:09 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 11:48:09 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 11:48:09 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 11:48:09 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 11:48:09 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 11:48:09 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 11:48:09
+2025-12-14 11:48:09 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 11:48:09 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 11:48:09 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 11:48:09 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 11:48:10 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid ewJOHRZ2YCXts2ydnJ5xSx2S3W4= as process 11
+2025-12-14 11:48:10 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 11:48:10 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 11:48:10 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 11:48:10 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 11:48:10 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 11:48:10 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 11:48:10 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 11:48:10 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 11:48:10 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 11:48:10 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 11:48:10 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 11:48:10 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 11:48:10 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 11:48:10 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 11:48:10 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 11:48:10 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 11:48:10 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 11:48:10 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 11:48:10 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 11:48:10 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 11:48:10 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 11:48:10
+2025-12-14 11:48:10 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 11:48:11 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 11:48:11 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 11:48:11 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid IhzcZ+zBK14UpGFWseXyZXfo9U4= as process 11
+2025-12-14 11:48:11 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 11:48:11 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 11:48:11 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 11:48:11 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 11:48:11 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 11:48:11 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 11:48:11 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 11:48:11 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 11:48:11 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 11:48:11 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 11:48:11 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 11:48:11 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 11:48:11 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 11:48:11 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 11:48:11 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 11:48:11 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 11:48:11 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 11:48:11 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 11:48:11 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 11:48:11 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 11:48:11 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 11:48:11
+2025-12-14 11:48:11 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 11:48:12 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 11:48:12 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 11:48:13 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid YS1p4Zk8KbbnVSvzdj/uKOpsyWA= as process 11
+2025-12-14 11:48:13 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 11:48:13 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 11:48:13 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 11:48:13 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 11:48:13 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 11:48:13 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 11:48:13 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 11:48:13 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 11:48:13 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 11:48:13 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 11:48:13 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 11:48:13 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 11:48:13 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 11:48:13 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 11:48:13 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 11:48:13 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 11:48:13 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 11:48:13 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 11:48:13 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 11:48:13 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 11:48:13 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 11:48:13
+2025-12-14 11:48:13 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 11:48:14 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 11:48:14 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 11:48:15 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid yia8F7sfAjSmwpFC9oPv1FFHPsQ= as process 11
+2025-12-14 11:48:15 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 11:48:15 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 11:48:15 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 11:48:15 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 11:48:15 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 11:48:15 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 11:48:15 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 11:48:15 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 11:48:15 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 11:48:15 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 11:48:15 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 11:48:15 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 11:48:15 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 11:48:15 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 11:48:15 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 11:48:15 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 11:48:15 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 11:48:15 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 11:48:15 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 11:48:15 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 11:48:15 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 11:48:15
+2025-12-14 11:48:15 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 11:48:16 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 11:48:16 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 11:48:18 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid vOMJGBQKWQaKR2s0OH7mWq7z5F0= as process 11
+2025-12-14 11:48:18 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 11:48:18 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 11:48:18 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 11:48:18 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 11:48:18 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 11:48:18 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 11:48:18 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 11:48:18 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 11:48:18 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 11:48:18 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 11:48:18 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 11:48:18 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 11:48:18 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 11:48:18 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 11:48:18 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 11:48:18 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 11:48:18 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 11:48:18 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 11:48:18 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 11:48:18 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 11:48:18 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 11:48:18
+2025-12-14 11:48:18 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 11:48:19 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 11:48:19 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 10:48:23 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid 7HtBhnGwuwqqlVFyJGFApn8MJ+w= as process 11
+2025-12-14 10:48:23 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 10:48:23 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 10:48:23 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 10:48:23 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 10:48:23 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 10:48:23 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 10:48:23 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 10:48:23 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 10:48:23 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 10:48:24 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 10:48:24 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 10:48:24 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 10:48:24 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 10:48:24 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 10:48:24 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 10:48:24 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 10:48:24 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 10:48:24 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 10:48:24 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 10:48:24 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 10:48:24 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 10:48:24
+2025-12-14 10:48:24 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 10:48:24 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 10:48:24 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 10:48:31 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid Zq6GNK/GX9k6aklOrVm4kZoLwUo= as process 12
+2025-12-14 10:48:31 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 10:48:31 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 10:48:31 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 10:48:31 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 10:48:31 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 10:48:31 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 10:48:31 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 10:48:31 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 10:48:31 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 10:48:31 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 10:48:31 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 10:48:31 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 10:48:31 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 10:48:31 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 10:48:31 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 10:48:31 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 10:48:31 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 10:48:31 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 10:48:31 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 10:48:31 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 10:48:31 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 10:48:31
+2025-12-14 10:48:31 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 10:48:32 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 10:48:32 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 10:48:45 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid AMkvCzdU+6jZGnfcoyDKXdpsuIM= as process 11
+2025-12-14 10:48:45 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 10:48:45 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 10:48:45 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 10:48:45 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 10:48:45 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 10:48:45 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 10:48:45 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 10:48:45 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 10:48:45 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 10:48:45 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 10:48:45 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 10:48:45 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 10:48:45 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 10:48:45 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 10:48:45 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 10:48:45 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 10:48:45 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 10:48:45 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 10:48:45 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 10:48:45 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 10:48:45 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 10:48:45
+2025-12-14 10:48:45 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 10:48:46 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 10:48:46 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+Starting temporary MariaDB server for user setup...
+Waiting for MariaDB to start...
+2025-12-14 10:49:12 0 [Note] Starting MariaDB 10.11.14-MariaDB-0+deb12u2 source revision 053f9bcb5b147bf00edb99e1310bae9125b7f125 server_uid P4ROvX9Y2G+MBysQdWuvs9SvCEA= as process 11
+2025-12-14 10:49:12 0 [Note] InnoDB: Compressed tables use zlib 1.2.13
+2025-12-14 10:49:12 0 [Note] InnoDB: Number of transaction pools: 1
+2025-12-14 10:49:12 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2025-12-14 10:49:12 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+2025-12-14 10:49:12 0 [Warning] mysqld: io_uring_queue_init() failed with EPERM: sysctl kernel.io_uring_disabled has the value 2, or 1 and the user of the process is not a member of sysctl kernel.io_uring_group. (see man 2 io_uring_setup).
+create_uring failed: falling back to libaio
+2025-12-14 10:49:12 0 [Note] InnoDB: native AIO failed: falling back to innodb_use_native_aio=OFF
+2025-12-14 10:49:12 0 [Note] InnoDB: innodb_buffer_pool_size_max=128m, innodb_buffer_pool_size=128m
+2025-12-14 10:49:12 0 [Note] InnoDB: Completed initialization of buffer pool
+2025-12-14 10:49:12 0 [Note] InnoDB: File system buffers for log disabled (block size=512 bytes)
+2025-12-14 10:49:12 0 [Note] InnoDB: Starting crash recovery from checkpoint LSN=46964
+2025-12-14 10:49:12 0 [Note] InnoDB: End of log at LSN=1738790
+2025-12-14 10:49:12 0 [Note] InnoDB: To recover: 262 pages
+2025-12-14 10:49:12 0 [Note] InnoDB: 128 rollback segments are active.
+2025-12-14 10:49:12 0 [Note] InnoDB: Removed temporary tablespace data file: "./ibtmp1"
+2025-12-14 10:49:12 0 [Note] InnoDB: Setting file './ibtmp1' size to 12.000MiB. Physically writing the file full; Please wait ...
+2025-12-14 10:49:12 0 [Note] InnoDB: File './ibtmp1' size is now 12.000MiB.
+2025-12-14 10:49:12 0 [Note] InnoDB: log sequence number 1738790; transaction id 365
+2025-12-14 10:49:12 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+2025-12-14 10:49:12 0 [Note] Plugin 'FEEDBACK' is disabled.
+2025-12-14 10:49:12 0 [Warning] You need to use --log-bin to make --expire-logs-days or --binlog-expire-logs-seconds work.
+2025-12-14 10:49:12 0 [Note] InnoDB: Buffer pool(s) load completed at 251214 10:49:12
+2025-12-14 10:49:12 0 [Note] mysqld: ready for connections.
+Version: '10.11.14-MariaDB-0+deb12u2'  socket: '/run/mysqld/mysqld.sock'  port: 0  Debian 12
+2025-12-14 10:49:13 3 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+Setting up database and user...
+2025-12-14 10:49:13 4 [Warning] Access denied for user 'root'@'localhost' (using password: NO)
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+pmolzer@inception ~> docker logs wordpress
+Waiting for MariaDB...
+MariaDB is available.
+WordPress configuration file not found. Starting installation...
+Downloading WordPress...
+Downloading WordPress 6.9 (en_US)...
+md5 hash verified: 897a9558008a485a247e50e498e5bf51
+Success: WordPress downloaded.
+Configuring WordPress...
+Success: Generated 'wp-config.php' file.
+Installing WordPress...
+sh: 1: /usr/sbin/sendmail: not found
+Success: WordPress installed successfully.
+Creating user...
+Success: Created user 2.
+Starting PHP-FPM...
+Waiting for MariaDB...
+Waiting for MariaDB...
+Waiting for MariaDB...
+Waiting for MariaDB...
+Waiting for MariaDB...
+Waiting for MariaDB...
+Waiting for MariaDB...
+Waiting for MariaDB...
+pmolzer@inception ~> docker logs nginx
+Generating SSL certificate...
+.........+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*......+.+..+......+......+....+..+...+..........+......+...........+....+........+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*.......+.+.....+...............+............+...+....+...+..+.+......+.....+...+.+..+..........+........+.+.....+...+.+.....................+...+...+........+..........+...........+.+..+...+.......+...............+...+..+.+......+.....+.+..+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+..+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*....+..+...+...+.+.....+.............+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*................+...+.........+......+....+...+...+............+..+...+......+......+....+......+......+...............+............+.....+...............+......+.+...........+....+......+..+......+.......+..+.......+.....+...+..........+...........+......+....+....................+.+........+.......+.....+.+...+......+........+.+.........+..+...+.......+.........+............+..+..........+...........+.......+.....+...+.+.....+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+-----
+Waiting for WordPress...
+WordPress is available.
+Starting NGINX...
+Waiting for WordPress...
+WordPress is available.
+Starting NGINX...
